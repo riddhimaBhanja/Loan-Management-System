@@ -1,0 +1,12 @@
+# Backend
+/target/
+*.log
+.env
+
+# Frontend
+/node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
