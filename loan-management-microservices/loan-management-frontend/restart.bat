@@ -1,0 +1,9 @@
+@echo off
+echo Stopping any running processes...
+taskkill /F /IM node.exe /T 2>nul
+echo Clearing cache...
+rmdir /s /q .angular 2>nul
+rmdir /s /q dist 2>nul
+rmdir /s /q node_modules\.cache 2>nul
+echo Starting dev server...
+npm start

@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const environment = {\n  production: true,\n  apiUrl: 'https://your-production-api.com/api',\n  appName: 'Loan Management System',\n  tokenKey: 'lms_access_token',\n  refreshTokenKey: 'lms_refresh_token',\n  userKey: 'lms_user'\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}
