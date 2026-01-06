@@ -61,14 +61,20 @@ public class LoanApprovalServiceImpl implements LoanApprovalService {
         // 2. Get loan details from loan-application-service
         LoanDTO loan = loanApplicationServiceClient.getLoanById(loanId);
 
-        // 3. Verify loan status is PENDING or UNDER_REVIEW
-        if (!loan.getStatus().equals("PENDING") && !loan.getStatus().equals("UNDER_REVIEW")) {
-            throw new BusinessException("Only PENDING or UNDER_REVIEW loans can be approved. Current status: " + loan.getStatus());
-        }
+        // 3. Check if loan already has an approval decision
+        loanApprovalRepository.findByLoanId(loanId).ifPresent(existingApproval -> {
+            if (existingApproval.getStatus() == LoanApproval.ApprovalStatus.APPROVED) {
+                throw new BusinessException("Loan has already been approved");
+            } else if (existingApproval.getStatus() == LoanApproval.ApprovalStatus.REJECTED) {
+                throw new BusinessException("Loan has already been rejected and cannot be approved");
+            }
+        });
 
-        // 4. Check if loan already has an approval decision
-        if (loanApprovalRepository.existsByLoanId(loanId)) {
-            throw new BusinessException("Loan has already been approved or rejected");
+        // 4. Verify loan status is PENDING, UNDER_REVIEW, or APPLIED
+        if (!loan.getStatus().equals("PENDING") &&
+            !loan.getStatus().equals("UNDER_REVIEW") &&
+            !loan.getStatus().equals("APPLIED")) {
+            throw new BusinessException("Only PENDING, UNDER_REVIEW, or APPLIED loans can be approved. Current status: " + loan.getStatus());
         }
 
         // 5. Validate approved amount
@@ -132,14 +138,20 @@ public class LoanApprovalServiceImpl implements LoanApprovalService {
         // 2. Get loan details from loan-application-service
         LoanDTO loan = loanApplicationServiceClient.getLoanById(loanId);
 
-        // 3. Verify loan status is PENDING or UNDER_REVIEW
-        if (!loan.getStatus().equals("PENDING") && !loan.getStatus().equals("UNDER_REVIEW")) {
-            throw new BusinessException("Only PENDING or UNDER_REVIEW loans can be rejected. Current status: " + loan.getStatus());
-        }
+        // 3. Check if loan already has an approval decision
+        loanApprovalRepository.findByLoanId(loanId).ifPresent(existingApproval -> {
+            if (existingApproval.getStatus() == LoanApproval.ApprovalStatus.APPROVED) {
+                throw new BusinessException("Loan has already been approved and cannot be rejected");
+            } else if (existingApproval.getStatus() == LoanApproval.ApprovalStatus.REJECTED) {
+                throw new BusinessException("Loan has already been rejected");
+            }
+        });
 
-        // 4. Check if loan already has an approval decision
-        if (loanApprovalRepository.existsByLoanId(loanId)) {
-            throw new BusinessException("Loan has already been approved or rejected");
+        // 4. Verify loan status is PENDING, UNDER_REVIEW, or APPLIED
+        if (!loan.getStatus().equals("PENDING") &&
+            !loan.getStatus().equals("UNDER_REVIEW") &&
+            !loan.getStatus().equals("APPLIED")) {
+            throw new BusinessException("Only PENDING, UNDER_REVIEW, or APPLIED loans can be rejected. Current status: " + loan.getStatus());
         }
 
         // 5. Create rejection record
