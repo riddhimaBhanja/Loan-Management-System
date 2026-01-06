@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ===================================== -->
+    <!-- PARENT POM CONFIGURATION              -->
+    <!-- Inherits from parent aggregator POM   -->
+    <!-- ===================================== -->
+    <parent>
+        <groupId>com.loanmanagement</groupId>
+        <artifactId>loan-management-microservices-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <!-- ===================================== -->
+    <!-- MODULE IDENTIFICATION                 -->
+    <!-- ===================================== -->
+    <artifactId>common-security</artifactId>
+    <name>Common Security</name>
+    <description>Shared Security utilities for microservices</description>
+
+    <!-- ===================================== -->
+    <!-- DEPENDENCIES                          -->
+    <!-- Versions are managed by parent POM    -->
+    <!-- ===================================== -->
+    <dependencies>
+        <!-- Spring Security (version from parent) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+
+        <!-- JWT (versions managed by parent) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Lombok (version from parent) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ===================================== -->
+    <!-- BUILD CONFIGURATION                   -->
+    <!-- Plugin configuration inherited from   -->
+    <!-- parent POM                            -->
+    <!-- ===================================== -->
+    <build>
+        <plugins>
+            <!-- Maven Compiler Plugin (configuration from parent) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
