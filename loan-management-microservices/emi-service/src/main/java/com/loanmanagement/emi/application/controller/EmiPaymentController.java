@@ -29,9 +29,10 @@ public class EmiPaymentController {
 
     /**
      * Record EMI payment
+     * Customers can pay their own EMIs, Officers/Admins can record payments for any customer
      */
     @PostMapping("/{emiScheduleId}/pay")
-    @PreAuthorize("hasAnyRole('LOAN_OFFICER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'LOAN_OFFICER', 'ADMIN')")
     public ResponseEntity<EmiPaymentResponse> recordPayment(
             @PathVariable Long emiScheduleId,
             @Valid @RequestBody EmiPaymentRequest request) {
@@ -48,9 +49,10 @@ public class EmiPaymentController {
     /**
      * Record EMI payment (alternate endpoint)
      * EMI schedule ID is provided in the request body
+     * Customers can pay their own EMIs, Officers/Admins can record payments for any customer
      */
     @PostMapping("/pay")
-    @PreAuthorize("hasAnyRole('LOAN_OFFICER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'LOAN_OFFICER', 'ADMIN')")
     public ResponseEntity<ApiResponse> recordPaymentAlt(
             @Valid @RequestBody EmiPaymentRequest request) {
         logger.info("Recording payment for EMI schedule ID: {}", request.getEmiScheduleId());
