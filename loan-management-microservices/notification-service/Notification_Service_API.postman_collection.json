@@ -1,0 +1,452 @@
+{
+  "info": {
+    "name": "Notification Service API",
+    "description": "Complete API collection for Notification Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Internal API (No Auth)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "health"]
+            }
+          }
+        },
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientEmail\": \"user@example.com\",\n  \"recipientName\": \"John Doe\",\n  \"subject\": \"Test Notification\",\n  \"body\": \"<h2>Hello!</h2><p>This is a test notification.</p>\",\n  \"type\": \"LOAN_SUBMITTED\",\n  \"userId\": 1,\n  \"loanApplicationId\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/send",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "send"]
+            }
+          }
+        },
+        {
+          "name": "Loan Submitted Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/loan-submitted?email=user@example.com&name=John Doe&loanId=12345&amount=50000",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "loan-submitted"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "loanId", "value": "12345"},
+                {"key": "amount", "value": "50000"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Loan Approved Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/loan-approved?email=user@example.com&name=John Doe&loanId=12345&amount=50000&approvedAmount=45000",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "loan-approved"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "loanId", "value": "12345"},
+                {"key": "amount", "value": "50000"},
+                {"key": "approvedAmount", "value": "45000"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Loan Rejected Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/loan-rejected?email=user@example.com&name=John Doe&loanId=12345&reason=Insufficient credit score",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "loan-rejected"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "loanId", "value": "12345"},
+                {"key": "reason", "value": "Insufficient credit score"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Loan Disbursed Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/loan-disbursed?email=user@example.com&name=John Doe&loanId=12345&amount=45000&disbursementDate=2024-01-15",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "loan-disbursed"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "loanId", "value": "12345"},
+                {"key": "amount", "value": "45000"},
+                {"key": "disbursementDate", "value": "2024-01-15"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "EMI Due Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/emi-due?email=user@example.com&name=John Doe&emiNumber=1&amount=5000&dueDate=2024-02-15",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "emi-due"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "emiNumber", "value": "1"},
+                {"key": "amount", "value": "5000"},
+                {"key": "dueDate", "value": "2024-02-15"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "EMI Paid Notification",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8086/api/internal/notifications/emi-paid?email=user@example.com&name=John Doe&emiNumber=1&amount=5000&paymentDate=2024-02-14",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "internal", "notifications", "emi-paid"],
+              "query": [
+                {"key": "email", "value": "user@example.com"},
+                {"key": "name", "value": "John Doe"},
+                {"key": "emiNumber", "value": "1"},
+                {"key": "amount", "value": "5000"},
+                {"key": "paymentDate", "value": "2024-02-14"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications (JWT Required)",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Notification by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Notifications by Recipient",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/recipient/user@example.com?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "recipient", "user@example.com"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Notifications by Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/type/LOAN_APPROVED?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "type", "LOAN_APPROVED"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Notifications by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/status/SENT?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "status", "SENT"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Notification Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/stats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Retry Failed Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/retry",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "retry"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates (Admin Only)",
+      "item": [
+        {
+          "name": "Get All Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/templates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Get Template by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/templates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "templates", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"custom-welcome\",\n  \"type\": \"ACCOUNT_CREATED\",\n  \"subject\": \"Welcome {{recipientName}}!\",\n  \"bodyTemplate\": \"<html><body><h2>Welcome {{recipientName}}!</h2><p>Your account has been created successfully.</p></body></html>\",\n  \"description\": \"Custom welcome email template\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/templates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Update Template",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"custom-welcome-updated\",\n  \"type\": \"ACCOUNT_CREATED\",\n  \"subject\": \"Welcome {{recipientName}}!\",\n  \"bodyTemplate\": \"<html><body><h2>Welcome {{recipientName}}!</h2><p>Your account has been created successfully. Updated!</p></body></html>\",\n  \"description\": \"Updated custom welcome email template\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/templates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "templates", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Template",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{JWT_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8086/api/notifications/templates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8086",
+              "path": ["api", "notifications", "templates", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "JWT_TOKEN",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    }
+  ]
+}

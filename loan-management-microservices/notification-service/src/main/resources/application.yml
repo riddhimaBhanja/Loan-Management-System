@@ -1,0 +1,96 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3311}/notification_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:loanapp}
+    password: ${DB_PASSWORD:loanpass123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  # Mail Configuration (Optional - will work without SMTP configured)
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    # Default sender email
+    default-from: ${SPRING_MAIL_FROM:noreply@loanmanagement.com}
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:YourSuperSecretKeyForJWTTokenGenerationChangeThisInProduction12345678901234567890}
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.loanmanagement: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.mail: DEBUG
+    org.hibernate.SQL: DEBUG
+
+# Async Configuration
+notification:
+  async:
+    core-pool-size: 5
+    max-pool-size: 10
+    queue-capacity: 100
+
+# Service URLs
+services:
+  emi-service:
+    url: http://EMI-SERVICE
+  auth-service:
+    url: http://AUTH-SERVICE
+
+# EMI Reminder Scheduler Configuration
+scheduler:
+  emi-reminder:
+    enabled: ${EMI_REMINDER_ENABLED:true}
+    cron: ${EMI_REMINDER_CRON:0 0 9 * * ?}  # Daily at 9 AM
+    days-ahead: ${EMI_REMINDER_DAYS_AHEAD:3}  # Remind 3 days before due date
