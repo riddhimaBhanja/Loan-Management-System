@@ -1,0 +1,88 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: EMI-SERVICE
+
+  datasource:
+    url: jdbc:mysql://localhost:3310/emi_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+    open-in-view: false
+
+  data:
+    jpa:
+      repositories:
+        enabled: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.loanmanagement.emi: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+
+# Service URLs (for Feign clients)
+services:
+  loan-approval:
+    name: LOAN-APPROVAL-SERVICE
+    url: http://localhost:8083
+  auth:
+    name: AUTH-SERVICE
+    url: http://localhost:8081
+
+# EMI Configuration
+emi:
+  calculation:
+    precision: 10
+    scale: 2
+  schedule:
+    overdue-check-cron: "0 0 1 * * ?"  # Daily at 1:00 AM
