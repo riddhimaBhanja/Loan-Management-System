@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+
+# JWT Configuration for tests
+jwt:
+  secret: TestSecretKeyForJWTTokenGenerationInTestEnvironment1234567890123456789012345678901234567890
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+# Disable Eureka for tests
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Logging for tests
+logging:
+  level:
+    com.loanmanagement: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+
+# Service URLs for tests
+services:
+  notification-service:
+    url: http://localhost:8085
