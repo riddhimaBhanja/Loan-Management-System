@@ -41,6 +41,11 @@ public interface LoanApprovalService {
     Long getApprovedLoansCount();
 
     /**
+     * Get count of rejected loans
+     */
+    Long getRejectedLoansCount();
+
+    /**
      * Get count of pending approvals by officer ID
      */
     Long getPendingApprovalsByOfficerId(Long officerId);

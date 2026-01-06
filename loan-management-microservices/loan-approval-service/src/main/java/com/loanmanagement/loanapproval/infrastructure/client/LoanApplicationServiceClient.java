@@ -170,4 +170,27 @@ public class LoanApplicationServiceClient {
             return new java.util.ArrayList<>();
         }
     }
+
+    /**
+     * Get loans by officer ID (for officer dashboard)
+     */
+    public java.util.List<LoanDTO> getLoansByOfficerId(Long officerId) {
+        logger.info("Fetching loans for officer ID: {}", officerId);
+
+        String url = loanServiceUrl + "/api/internal/loans/officer/" + officerId;
+
+        try {
+            ResponseEntity<LoanDTO[]> response = restTemplate.getForEntity(url, LoanDTO[].class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Successfully fetched loans for officer ID: {}", officerId);
+                return java.util.Arrays.asList(response.getBody());
+            }
+
+            return new java.util.ArrayList<>();
+        } catch (Exception e) {
+            logger.error("Error fetching loans for officer ID: {}", officerId, e);
+            return new java.util.ArrayList<>();
+        }
+    }
 }

@@ -234,11 +234,35 @@ public class LoanApprovalServiceImpl implements LoanApprovalService {
     }
 
     @Override
+    public Long getRejectedLoansCount() {
+        logger.info("Fetching rejected loans count");
+        return loanApprovalRepository.countByStatus(LoanApproval.ApprovalStatus.REJECTED);
+    }
+
+    @Override
     public Long getPendingApprovalsByOfficerId(Long officerId) {
         logger.info("Fetching pending approvals count for officer ID: {}", officerId);
-        // Note: This returns 0 as we don't track which officer is assigned to which pending approval
-        // In a real system, you might want to add this tracking to the LoanApproval entity
-        return 0L;
+        try {
+            // Get loans assigned to this officer
+            java.util.List<com.loanmanagement.common.dto.LoanDTO> officerLoans =
+                loanApplicationServiceClient.getLoansByOfficerId(officerId);
+
+            // Count loans that are in pending/under review status
+            long pendingCount = officerLoans.stream()
+                .filter(loan -> {
+                    String status = loan.getStatus();
+                    return "PENDING".equalsIgnoreCase(status) ||
+                           "APPLIED".equalsIgnoreCase(status) ||
+                           "UNDER_REVIEW".equalsIgnoreCase(status);
+                })
+                .count();
+
+            logger.info("Found {} pending loans for officer ID: {}", pendingCount, officerId);
+            return pendingCount;
+        } catch (Exception e) {
+            logger.error("Error fetching pending approvals for officer ID: {}", officerId, e);
+            return 0L;
+        }
     }
 
     /**
