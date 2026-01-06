@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ===================================== -->
+    <!-- PARENT POM CONFIGURATION              -->
+    <!-- Inherits from parent aggregator POM   -->
+    <!-- ===================================== -->
+    <parent>
+        <groupId>com.loanmanagement</groupId>
+        <artifactId>loan-management-microservices-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- ===================================== -->
+    <!-- MODULE IDENTIFICATION                 -->
+    <!-- ===================================== -->
+    <artifactId>service-discovery</artifactId>
+    <name>Service Discovery (Eureka Server)</name>
+    <description>Service Discovery for Loan Management Microservices</description>
+
+    <!-- ===================================== -->
+    <!-- DEPENDENCIES                          -->
+    <!-- Versions are managed by parent POM    -->
+    <!-- ===================================== -->
+    <dependencies>
+        <!-- Eureka Server (version managed by Spring Cloud BOM) -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator (version from parent) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- ===================================== -->
+    <!-- BUILD CONFIGURATION                   -->
+    <!-- Plugins inherited from parent         -->
+    <!-- ===================================== -->
+    <build>
+        <plugins>
+            <!-- Spring Boot Maven Plugin (configuration from parent) -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
