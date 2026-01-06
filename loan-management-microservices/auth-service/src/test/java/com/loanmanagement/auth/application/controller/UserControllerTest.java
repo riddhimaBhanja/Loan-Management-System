@@ -7,6 +7,9 @@ import com.loanmanagement.auth.application.dto.response.PageResponse;
 import com.loanmanagement.auth.application.dto.response.UserResponse;
 import com.loanmanagement.auth.domain.model.RoleType;
 import com.loanmanagement.auth.domain.service.UserService;
+import com.loanmanagement.auth.infrastructure.security.UserDetailsServiceImpl;
+import com.loanmanagement.auth.infrastructure.security.jwt.JwtAuthenticationFilter;
+import com.loanmanagement.auth.infrastructure.security.jwt.JwtTokenProvider;
 import com.loanmanagement.auth.shared.constants.ApiConstants;
 import com.loanmanagement.auth.shared.constants.MessageConstants;
 import com.loanmanagement.common.exception.BusinessException;
@@ -38,7 +41,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Uses @WebMvcTest for controller layer testing
  * Target Coverage: 95%+
  */
-@WebMvcTest(UserController.class)
+@WebMvcTest(controllers = UserController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class,
+        com.loanmanagement.auth.infrastructure.config.JpaConfig.class
+})
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("UserController Tests")
@@ -49,6 +56,15 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;

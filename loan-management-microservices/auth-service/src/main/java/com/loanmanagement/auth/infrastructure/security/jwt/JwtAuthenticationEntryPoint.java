@@ -41,6 +41,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         );
 
         final ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules(); // Register JSR310 module for LocalDateTime
         mapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }
