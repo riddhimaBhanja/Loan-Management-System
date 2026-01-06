@@ -1,0 +1,645 @@
+<app-layout>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+      <p class="welcome-message">Welcome, {{ authService.getCurrentUser()?.fullName }}!</p>
+    </div>
+
+    @if (isLoading()) {
+      <app-loading-spinner></app-loading-spinner>
+    } @else if (errorMessage()) {
+      <mat-card class="error-card">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ errorMessage() }}</p>
+        <button mat-raised-button color="primary" (click)="loadDashboardData()">Retry</button>
+      </mat-card>
+    } @else {
+      <!-- Admin Dashboard -->
+      @if (userRole() === 'ADMIN') {
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon total">account_balance</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.totalLoans || 0 }}</h3>
+                <p>Total Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon pending">hourglass_empty</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.pendingLoans || 0 }}</h3>
+                <p>Pending Applications</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon approved">check_circle</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.approvedLoans || 0 }}</h3>
+                <p>Approved Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon amount">payments</mat-icon>
+              <div class="stat-details">
+                <h3>{{ formatCurrency(dashboardStats()?.totalDisbursedAmount) }}</h3>
+                <p>Total Disbursed</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon review">rate_review</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.underReviewLoans || 0 }}</h3>
+                <p>Under Review</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon overdue">warning</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.overdueEmis || 0 }}</h3>
+                <p>Overdue EMIs</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Admin Quick Actions -->
+        <mat-card class="quick-actions-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>bolt</mat-icon>
+              Quick Actions
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="quick-actions-grid">
+              <button mat-raised-button color="primary" routerLink="/admin/users" class="action-btn">
+                <mat-icon>group</mat-icon>
+                <span>Manage Users</span>
+              </button>
+              <button mat-raised-button color="accent" routerLink="/admin/loan-types" class="action-btn">
+                <mat-icon>category</mat-icon>
+                <span>Loan Types</span>
+              </button>
+              <button mat-raised-button routerLink="/loans" class="action-btn">
+                <mat-icon>list_alt</mat-icon>
+                <span>All Loans</span>
+              </button>
+              <button mat-raised-button routerLink="/admin/reports" class="action-btn">
+                <mat-icon>assessment</mat-icon>
+                <span>Reports</span>
+              </button>
+              <button mat-raised-button routerLink="/emis/overdue" class="action-btn">
+                <mat-icon>warning</mat-icon>
+                <span>Overdue EMIs</span>
+              </button>
+              <button mat-raised-button routerLink="/profile" class="action-btn">
+                <mat-icon>account_circle</mat-icon>
+                <span>My Profile</span>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (dashboardStats()?.recentApplications && dashboardStats()!.recentApplications!.length > 0) {
+          <mat-card class="table-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>recent_actors</mat-icon>
+                Recent Applications
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="dashboardStats()!.recentApplications!">
+                <ng-container matColumnDef="applicationNumber">
+                  <th mat-header-cell *matHeaderCellDef>Application #</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.applicationNumber }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerName">
+                  <th mat-header-cell *matHeaderCellDef>Customer</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="loanType">
+                  <th mat-header-cell *matHeaderCellDef>Loan Type</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.loanTypeName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let loan">{{ formatCurrency(loan.requestedAmount) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let loan">
+                    <span class="status-badge" [ngClass]="getStatusClass(loan.status)">
+                      {{ loan.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="appliedAt">
+                  <th mat-header-cell *matHeaderCellDef>Applied Date</th>
+                  <td mat-cell *matCellDef="let loan">{{ formatDate(loan.appliedAt) }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="recentApplicationsColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: recentApplicationsColumns;" [routerLink]="['/loans', row.id]" class="clickable-row"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+
+      <!-- Loan Officer Dashboard -->
+      @if (userRole() === 'LOAN_OFFICER') {
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon total">assignment</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.totalLoans || 0 }}</h3>
+                <p>Assigned Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon review">rate_review</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.underReviewLoans || 0 }}</h3>
+                <p>Under Review</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon approved">check_circle</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.approvedLoans || 0 }}</h3>
+                <p>Approved</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon overdue">warning</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.overdueEmis || 0 }}</h3>
+                <p>Overdue EMIs</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon pending">pending_actions</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.pendingLoans || 0 }}</h3>
+                <p>Pending Review</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon amount">trending_up</mat-icon>
+              <div class="stat-details">
+                <h3>{{ formatCurrency(dashboardStats()?.totalDisbursedAmount) }}</h3>
+                <p>Total Processed</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Loan Officer Quick Actions -->
+        <mat-card class="quick-actions-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>bolt</mat-icon>
+              Quick Actions
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="quick-actions-grid">
+              <button mat-raised-button color="primary" routerLink="/loans/assigned" class="action-btn">
+                <mat-icon>assignment</mat-icon>
+                <span>My Assigned Loans</span>
+              </button>
+              <button mat-raised-button color="accent" routerLink="/loans/all" class="action-btn">
+                <mat-icon>list_alt</mat-icon>
+                <span>All Applications</span>
+              </button>
+              <button mat-raised-button routerLink="/admin/reports" class="action-btn">
+                <mat-icon>assessment</mat-icon>
+                <span>Reports</span>
+              </button>
+              <button mat-raised-button routerLink="/emis/overdue" class="action-btn">
+                <mat-icon>warning</mat-icon>
+                <span>Overdue EMIs</span>
+              </button>
+              <button mat-raised-button routerLink="/profile" class="action-btn">
+                <mat-icon>account_circle</mat-icon>
+                <span>My Profile</span>
+              </button>
+              <button mat-raised-button color="warn" routerLink="/home" class="action-btn">
+                <mat-icon>info</mat-icon>
+                <span>Loan Information</span>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (dashboardStats()?.recentApplications && dashboardStats()!.recentApplications!.length > 0) {
+          <mat-card class="table-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>task_alt</mat-icon>
+                Recent Assignments
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="dashboardStats()!.recentApplications!">
+                <ng-container matColumnDef="applicationNumber">
+                  <th mat-header-cell *matHeaderCellDef>Application #</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.applicationNumber }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerName">
+                  <th mat-header-cell *matHeaderCellDef>Customer</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="loanType">
+                  <th mat-header-cell *matHeaderCellDef>Loan Type</th>
+                  <td mat-cell *matCellDef="let loan">{{ loan.loanTypeName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let loan">{{ formatCurrency(loan.requestedAmount) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let loan">
+                    <span class="status-badge" [ngClass]="getStatusClass(loan.status)">
+                      {{ loan.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="appliedAt">
+                  <th mat-header-cell *matHeaderCellDef>Applied Date</th>
+                  <td mat-cell *matCellDef="let loan">{{ formatDate(loan.appliedAt) }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="recentApplicationsColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: recentApplicationsColumns;" [routerLink]="['/loans', row.id]" class="clickable-row"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+
+      <!-- Customer Dashboard -->
+      @if (userRole() === 'CUSTOMER') {
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon total">account_balance</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.totalLoans || 0 }}</h3>
+                <p>Total Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon approved">check_circle</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.activeLoans || 0 }}</h3>
+                <p>Active Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon amount">payments</mat-icon>
+              <div class="stat-details">
+                <h3>{{ formatCurrency(dashboardStats()?.totalOutstanding) }}</h3>
+                <p>Total Outstanding</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon closed">done_all</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.closedLoans || 0 }}</h3>
+                <p>Closed Loans</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon pending">hourglass_empty</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.pendingLoans || 0 }}</h3>
+                <p>Pending Applications</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <mat-icon class="stat-icon overdue">notification_important</mat-icon>
+              <div class="stat-details">
+                <h3>{{ dashboardStats()?.overdueEmis || 0 }}</h3>
+                <p>Overdue Payments</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- EMI Payment Progress Card -->
+        <mat-card class="emi-progress-card gradient-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>timeline</mat-icon>
+              EMI Payment Progress
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="progress-container">
+              <!-- Circular Progress Indicator -->
+              <div class="circular-progress">
+                <svg class="progress-ring" width="200" height="200">
+                  <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="pendingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:0.2" />
+                      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:0.2" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Background Circle -->
+                  <circle
+                    class="progress-ring__circle-bg"
+                    stroke="url(#pendingGradient)"
+                    stroke-width="16"
+                    fill="transparent"
+                    r="84"
+                    cx="100"
+                    cy="100"/>
+                  <!-- Progress Circle -->
+                  <circle
+                    class="progress-ring__circle"
+                    stroke="url(#progressGradient)"
+                    stroke-width="16"
+                    fill="transparent"
+                    r="84"
+                    cx="100"
+                    cy="100"
+                    [attr.stroke-dasharray]="528"
+                    [attr.stroke-dashoffset]="getCircularProgressOffset()"
+                    stroke-linecap="round"/>
+                </svg>
+                <div class="progress-text">
+                  <div class="percentage">{{ getEmiPaidPercentage() }}%</div>
+                  <div class="label">Paid</div>
+                </div>
+              </div>
+
+              <!-- Progress Details -->
+              <div class="progress-details">
+                <div class="detail-item paid">
+                  <div class="icon-wrapper">
+                    <mat-icon>check_circle</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <div class="detail-label">EMIs Paid</div>
+                    <div class="detail-value">{{ getEmisPaidCount() }} / {{ getTotalEmisCount() }}</div>
+                    <div class="detail-amount">{{ formatCurrency(getTotalPaidAmount()) }}</div>
+                  </div>
+                </div>
+
+                <div class="detail-item pending">
+                  <div class="icon-wrapper">
+                    <mat-icon>pending</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <div class="detail-label">EMIs Pending</div>
+                    <div class="detail-value">{{ getPendingEmisCount() }}</div>
+                    <div class="detail-amount">{{ formatCurrency(getTotalPendingAmount()) }}</div>
+                  </div>
+                </div>
+
+                <div class="detail-item overdue" *ngIf="(dashboardStats()?.overdueEmis || 0) > 0">
+                  <div class="icon-wrapper">
+                    <mat-icon>warning</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <div class="detail-label">Overdue</div>
+                    <div class="detail-value">{{ dashboardStats()?.overdueEmis || 0 }} EMI(s)</div>
+                    <div class="detail-amount urgent">Action Required!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Linear Progress Bar -->
+            <div class="linear-progress-section">
+              <div class="progress-label-row">
+                <span class="progress-label">Overall Progress</span>
+                <span class="progress-percentage">{{ getEmiPaidPercentage() }}%</span>
+              </div>
+              <div class="linear-progress-bar">
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="getEmiPaidPercentage()"></div>
+                </div>
+              </div>
+              <div class="progress-legend">
+                <div class="legend-item">
+                  <span class="legend-dot paid"></span>
+                  <span>Paid: {{ formatCurrency(getTotalPaidAmount()) }}</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot pending"></span>
+                  <span>Pending: {{ formatCurrency(getTotalPendingAmount()) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="progress-actions">
+              <button mat-raised-button color="primary" routerLink="/emis/my-schedule" class="view-schedule-btn">
+                <mat-icon>schedule</mat-icon>
+                View Complete EMI Schedule
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (dashboardStats()?.nextEmiDueDate) {
+          <mat-card class="next-emi-card highlight-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>event_available</mat-icon>
+                Next EMI Payment
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="next-emi-info">
+                <div class="emi-detail">
+                  <mat-icon>event</mat-icon>
+                  <div>
+                    <p class="label">Due Date</p>
+                    <p class="value">{{ formatDate(dashboardStats()?.nextEmiDueDate) }}</p>
+                  </div>
+                </div>
+                <div class="emi-detail">
+                  <mat-icon>payments</mat-icon>
+                  <div>
+                    <p class="label">Amount</p>
+                    <p class="value amount">{{ formatCurrency(dashboardStats()?.nextEmiAmount) }}</p>
+                  </div>
+                </div>
+                <div class="emi-detail">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <div>
+                    <p class="label">Payment Method</p>
+                    <p class="value">Auto-Debit / Pay Now</p>
+                  </div>
+                </div>
+              </div>
+              @if (dashboardStats()?.nextEmiLoanId) {
+                <div class="emi-actions">
+                  <button mat-raised-button color="primary" [routerLink]="['/emis/loan', dashboardStats()!.nextEmiLoanId]">
+                    <mat-icon>schedule</mat-icon>
+                    View Full EMI Schedule
+                  </button>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Customer Quick Actions -->
+        <mat-card class="quick-actions-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>bolt</mat-icon>
+              Quick Actions
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="quick-actions-grid">
+              <button mat-raised-button color="primary" routerLink="/loans/apply" class="action-btn">
+                <mat-icon>add_circle</mat-icon>
+                <span>Apply for Loan</span>
+              </button>
+              <button mat-raised-button color="accent" routerLink="/loan-types" class="action-btn">
+                <mat-icon>category</mat-icon>
+                <span>Browse Loan Types</span>
+              </button>
+              <button mat-raised-button routerLink="/loans/my-loans" class="action-btn">
+                <mat-icon>account_balance</mat-icon>
+                <span>My Loans</span>
+              </button>
+              <button mat-raised-button routerLink="/emis/my-schedule" class="action-btn">
+                <mat-icon>schedule</mat-icon>
+                <span>My EMI Schedule</span>
+              </button>
+              <button mat-raised-button routerLink="/profile" class="action-btn">
+                <mat-icon>account_circle</mat-icon>
+                <span>My Profile</span>
+              </button>
+              <button mat-raised-button routerLink="/home" class="action-btn">
+                <mat-icon>info</mat-icon>
+                <span>Loan Information</span>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @if (dashboardStats()?.upcomingEmis && dashboardStats()!.upcomingEmis!.length > 0) {
+          <mat-card class="table-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>schedule</mat-icon>
+                Upcoming EMIs (Next 30 Days)
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="dashboardStats()!.upcomingEmis!">
+                <ng-container matColumnDef="installmentNumber">
+                  <th mat-header-cell *matHeaderCellDef>Installment #</th>
+                  <td mat-cell *matCellDef="let emi">{{ emi.installmentNumber }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="dueDate">
+                  <th mat-header-cell *matHeaderCellDef>Due Date</th>
+                  <td mat-cell *matCellDef="let emi">{{ formatDate(emi.dueDate) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalEmi">
+                  <th mat-header-cell *matHeaderCellDef>EMI Amount</th>
+                  <td mat-cell *matCellDef="let emi">{{ formatCurrency(emi.totalEmi) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let emi">
+                    <span class="status-badge" [ngClass]="getStatusClass(emi.status)">
+                      {{ emi.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let emi">
+                    <button mat-button color="primary" [routerLink]="['/emis/loan', emi.loanId]">
+                      <mat-icon>visibility</mat-icon>
+                      View Details
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="upcomingEmisColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: upcomingEmisColumns;"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+    }
+  </div>
+</app-layout>

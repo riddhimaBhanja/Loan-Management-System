@@ -1,0 +1,170 @@
+<app-page-header
+  title="My Profile"
+  subtitle="View and manage your profile information"
+  [showBackButton]="true"
+  backRoute="/dashboard">
+</app-page-header>
+
+<div class="profile-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Loading your profile...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content" *ngIf="!isLoading() && currentUser()">
+    <!-- Account Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          Account Information
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">
+              <mat-icon>badge</mat-icon>
+              Username
+            </span>
+            <span class="info-value">{{ currentUser()!.username }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">
+              <mat-icon>verified_user</mat-icon>
+              Roles
+            </span>
+            <span class="info-value">
+              <span class="role-badge" *ngFor="let role of getRoleBadges()">
+                {{ role }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">
+              <mat-icon>check_circle</mat-icon>
+              Account Status
+            </span>
+            <span class="info-value">
+              <span class="status-badge" [class.active]="currentUser()!.isActive">
+                {{ currentUser()!.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">
+              <mat-icon>event</mat-icon>
+              Member Since
+            </span>
+            <span class="info-value">{{ formatDate(currentUser()!.createdAt) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Profile Edit Form Card -->
+    <mat-card class="profile-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>edit</mat-icon>
+          Personal Information
+        </mat-card-title>
+        <div class="header-actions">
+          <button
+            mat-raised-button
+            [color]="isEditing() ? 'warn' : 'primary'"
+            (click)="toggleEdit()"
+            [disabled]="isSubmitting()">
+            <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
+            {{ isEditing() ? 'Cancel' : 'Edit Profile' }}
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="fullName" placeholder="Enter your full name" />
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-error *ngIf="profileForm.get('fullName')?.hasError('required')">
+                Full name is required
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('fullName')?.hasError('minlength')">
+                Full name must be at least 3 characters
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('fullName')?.hasError('maxlength')">
+                Full name cannot exceed 100 characters
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email Address</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="Enter your email" />
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                Please enter a valid email address
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('email')?.hasError('maxlength')">
+                Email cannot exceed 100 characters
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phoneNumber" placeholder="Enter 10-digit phone number" maxlength="10" />
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-hint>Enter 10-digit mobile number</mat-hint>
+              <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('required')">
+                Phone number is required
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('pattern')">
+                Please enter a valid 10-digit phone number
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="form-actions" *ngIf="isEditing()">
+            <button
+              type="submit"
+              mat-raised-button
+              color="primary"
+              [disabled]="profileForm.invalid || isSubmitting()">
+              <mat-spinner diameter="20" *ngIf="isSubmitting()"></mat-spinner>
+              <mat-icon *ngIf="!isSubmitting()">save</mat-icon>
+              <span *ngIf="!isSubmitting()">Save Changes</span>
+              <span *ngIf="isSubmitting()">Saving...</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Security Notice -->
+    <mat-card class="notice-card">
+      <mat-card-content>
+        <div class="notice-content">
+          <mat-icon>info</mat-icon>
+          <div class="notice-text">
+            <h4>Security Notice</h4>
+            <p>
+              Your username cannot be changed. To update your password or for any security concerns,
+              please contact the system administrator.
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

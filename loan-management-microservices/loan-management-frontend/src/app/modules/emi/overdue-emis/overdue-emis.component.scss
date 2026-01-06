@@ -1,0 +1,465 @@
+.content-container {
+  padding: 32px 24px;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=95');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.20;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.05) 0%, rgba(255, 152, 0, 0.05) 100%);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+// Summary Cards
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+  }
+
+  .card-content {
+    flex: 1;
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+    }
+  }
+
+  &.critical .card-icon {
+    background: linear-gradient(135deg, #e57373 0%, #F44336 100%);
+  }
+
+  &.warning .card-icon {
+    background: linear-gradient(135deg, #ffb74d 0%, #FF9800 100%);
+  }
+
+  &.info .card-icon {
+    background: linear-gradient(135deg, #64b5f6 0%, #2196F3 100%);
+  }
+
+  &.customers .card-icon {
+    background: linear-gradient(135deg, #9575cd 0%, #673AB7 100%);
+  }
+}
+
+// Alert Message
+.alert-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
+  border-radius: 12px;
+  border-left: 4px solid #F44336;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.15);
+
+  mat-icon {
+    color: #F44336;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .alert-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: #F44336;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: rgba(244, 67, 54, 0.9);
+      line-height: 1.5;
+    }
+  }
+}
+
+// Table Container
+.table-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.overdue-table {
+  width: 100%;
+
+  th {
+    font-weight: 600;
+    color: white !important;
+    background: linear-gradient(135deg, #F44336 0%, #FF5722 100%);
+    padding: 18px 16px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .overdue-row {
+    transition: all 0.2s ease;
+    background: white;
+
+    &:hover {
+      background: linear-gradient(90deg, rgba(244, 67, 54, 0.05) 0%, transparent 100%);
+      transform: scale(1.002);
+    }
+  }
+}
+
+// Custom Styles
+.loan-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #666;
+  }
+}
+
+.due-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &.overdue {
+    color: #F44336;
+    font-weight: 600;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.amount {
+  font-weight: 600;
+
+  &.overdue-amount {
+    color: #F44336;
+    font-size: 15px;
+  }
+}
+
+// Severity Chips
+mat-chip {
+  border-radius: 16px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+  }
+
+  .severity-label {
+    margin-left: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  &.severity-low {
+    background: linear-gradient(135deg, #ffb74d 0%, #FF9800 100%) !important;
+    color: white !important;
+  }
+
+  &.severity-medium {
+    background: linear-gradient(135deg, #ff8a65 0%, #FF5722 100%) !important;
+    color: white !important;
+  }
+
+  &.severity-high {
+    background: linear-gradient(135deg, #ef5350 0%, #E53935 100%) !important;
+    color: white !important;
+  }
+
+  &.severity-critical {
+    background: linear-gradient(135deg, #d32f2f 0%, #B71C1C 100%) !important;
+    color: white !important;
+    animation: critical-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes critical-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(211, 47, 47, 0); }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  button {
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// No Data
+.no-data {
+  padding: 80px 32px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+    opacity: 0.4;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p {
+    margin: 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.4);
+  }
+
+  &.success {
+    mat-icon {
+      background: linear-gradient(135deg, #81c784 0%, #4CAF50 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p {
+      color: #4CAF50;
+    }
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 80px 32px;
+
+  p {
+    color: #F44336;
+    font-weight: 600;
+    font-size: 16px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .content-container {
+    padding: 20px 16px;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .summary-card {
+    padding: 20px;
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .card-content {
+      .card-value {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .alert-message {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .alert-content {
+      strong {
+        font-size: 14px;
+      }
+
+      p {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .overdue-table {
+    th, td {
+      padding: 12px 8px;
+      font-size: 12px;
+    }
+  }
+
+  mat-chip {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+
+    .severity-label {
+      display: none;
+    }
+  }
+
+  .no-data {
+    padding: 48px 20px;
+
+    mat-icon {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+    }
+
+    p {
+      font-size: 16px;
+    }
+  }
+}

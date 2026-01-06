@@ -1,0 +1,163 @@
+<app-page-header
+  title="Review Loan Application"
+  [subtitle]="'Application: ' + (loan()?.applicationNumber || '')"
+  [showBackButton]="true"
+  [backRoute]="'/loans/' + loan()?.id">
+</app-page-header>
+
+<div class="content-container" *ngIf="loan() as loanData">
+  <div class="review-layout">
+    <!-- Loan Summary Card -->
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Loan Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">Customer:</span>
+            <span class="value">{{ loanData.customerName }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Loan Type:</span>
+            <span class="value">{{ loanData.loanTypeName }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Requested Amount:</span>
+            <span class="value highlight">{{ loanData.requestedAmount | inrCurrency }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Tenure:</span>
+            <span class="value">{{ loanData.tenureMonths }} months</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Employment:</span>
+            <span class="value">{{ loanData.employmentStatus }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Monthly Income:</span>
+            <span class="value">{{ loanData.monthlyIncome | inrCurrency }}</span>
+          </div>
+          <div class="summary-item full-width">
+            <span class="label">Purpose:</span>
+            <p class="value">{{ loanData.purpose }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Warning Message for Already Processed Loans -->
+    <mat-card class="warning-card" *ngIf="isAlreadyProcessed()">
+      <mat-card-content>
+        <div class="warning-content">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          <div class="warning-text">
+            <h3>Loan Already Processed</h3>
+            <p>{{ getProcessedStatusMessage() }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Approval Form -->
+    <mat-card class="action-card" *ngIf="canApproveOrReject()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="card-icon success">check_circle</mat-icon>
+          Approve Application
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="approvalForm">
+          <mat-form-field appearance="outline">
+            <mat-label>Approved Amount</mat-label>
+            <input matInput type="number" formControlName="approvedAmount" placeholder="Enter approved amount">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-error *ngIf="approvalForm.get('approvedAmount')?.hasError('required')">
+              Approved amount is required
+            </mat-error>
+            <mat-error *ngIf="approvalForm.get('approvedAmount')?.hasError('min')">
+              Amount must be greater than 0
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Interest Rate (per annum)</mat-label>
+            <input matInput type="number" step="0.1" formControlName="interestRate" placeholder="Enter interest rate">
+            <span matSuffix>%</span>
+            <mat-error *ngIf="approvalForm.get('interestRate')?.hasError('required')">
+              Interest rate is required
+            </mat-error>
+            <mat-error *ngIf="approvalForm.get('interestRate')?.hasError('min') || approvalForm.get('interestRate')?.hasError('max')">
+              Rate must be between 0.1% and 30%
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Approval Remarks (Optional)</mat-label>
+            <textarea matInput formControlName="remarks" rows="3" placeholder="Add any remarks for approval"></textarea>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onApprove()"
+            [disabled]="approvalForm.invalid || isSubmitting()"
+            class="submit-button">
+            <mat-icon>check_circle</mat-icon>
+            Approve Loan
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Rejection Form -->
+    <mat-card class="action-card" *ngIf="canApproveOrReject()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="card-icon danger">cancel</mat-icon>
+          Reject Application
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="rejectionForm">
+          <mat-form-field appearance="outline">
+            <mat-label>Rejection Reason</mat-label>
+            <textarea matInput formControlName="rejectionReason" rows="4" placeholder="Enter detailed reason for rejection (10-1000 characters)"></textarea>
+            <mat-error *ngIf="rejectionForm.get('rejectionReason')?.hasError('required')">
+              Rejection reason is required
+            </mat-error>
+            <mat-error *ngIf="rejectionForm.get('rejectionReason')?.hasError('minlength')">
+              Reason must be at least 10 characters
+            </mat-error>
+            <mat-error *ngIf="rejectionForm.get('rejectionReason')?.hasError('maxlength')">
+              Reason cannot exceed 1000 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Additional Notes (Optional)</mat-label>
+            <textarea matInput formControlName="notes" rows="2" placeholder="Add any additional notes (max 500 characters)"></textarea>
+            <mat-error *ngIf="rejectionForm.get('notes')?.hasError('maxlength')">
+              Notes cannot exceed 500 characters
+            </mat-error>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="onReject()"
+            [disabled]="rejectionForm.invalid || isSubmitting()"
+            class="submit-button">
+            <mat-icon>cancel</mat-icon>
+            Reject Loan
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="isLoading()">
+  <mat-spinner></mat-spinner>
+</div>

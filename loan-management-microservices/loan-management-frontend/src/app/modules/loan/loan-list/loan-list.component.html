@@ -1,0 +1,115 @@
+<app-page-header
+  title="Loan Applications"
+  [subtitle]="isStaff() ? 'Manage all loan applications' : 'My loan applications'"
+  [showBackButton]="true"
+  backRoute="/dashboard">
+  <button actions mat-raised-button color="primary" routerLink="/loans/apply" *hasAnyRole="['CUSTOMER']">
+    <mat-icon>add</mat-icon>
+    New Application
+  </button>
+  <button actions mat-raised-button
+          [color]="showPendingOnly() ? 'accent' : 'primary'"
+          (click)="togglePendingOnly()"
+          *hasAnyRole="['ADMIN', 'LOAN_OFFICER']"
+          matTooltip="Show only pending loan applications awaiting review">
+    <mat-icon>{{ showPendingOnly() ? 'list' : 'pending_actions' }}</mat-icon>
+    {{ showPendingOnly() ? 'Show All' : 'Pending Only' }}
+  </button>
+</app-page-header>
+
+<div class="content-container">
+  <div class="filter-section" *ngIf="isStaff() && !showPendingOnly()">
+    <mat-form-field>
+      <mat-label>Filter by Status</mat-label>
+      <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChange()">
+        <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="pending-info" *ngIf="showPendingOnly()">
+    <mat-icon>info</mat-icon>
+    <span>Showing all pending loan applications awaiting review</span>
+  </div>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="loans()" class="loans-table">
+      <!-- Application Number Column -->
+      <ng-container matColumnDef="applicationNumber">
+        <th mat-header-cell *matHeaderCellDef>Application #</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.applicationNumber }}</td>
+      </ng-container>
+
+      <!-- Customer Name Column -->
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
+      </ng-container>
+
+      <!-- Loan Type Column -->
+      <ng-container matColumnDef="loanType">
+        <th mat-header-cell *matHeaderCellDef>Loan Type</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.loanTypeName }}</td>
+      </ng-container>
+
+      <!-- Requested Amount Column -->
+      <ng-container matColumnDef="requestedAmount">
+        <th mat-header-cell *matHeaderCellDef>Requested Amount</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.requestedAmount | inrCurrency }}</td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let loan">
+          <mat-chip [ngClass]="getStatusBadgeClass(loan.status)">
+            {{ (loan.status | statusBadge).text }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Applied At Column -->
+      <ng-container matColumnDef="appliedAt">
+        <th mat-header-cell *matHeaderCellDef>Applied Date</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.appliedAt | date: 'dd/MM/yyyy' }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let loan">
+          <button mat-icon-button [routerLink]="['/loans', loan.id]" matTooltip="View Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row"></tr>
+    </table>
+
+    <div *ngIf="isLoading()" class="loading-overlay">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading() && loans().length === 0" class="no-data">
+      <mat-icon>inbox</mat-icon>
+      <p>No loan applications found</p>
+    </div>
+  </div>
+
+  <mat-paginator
+    *ngIf="loans().length > 0 && !showPendingOnly()"
+    [length]="totalElements()"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    (page)="onPageChange($event)">
+  </mat-paginator>
+
+  <div *ngIf="showPendingOnly() && loans().length > 0" class="pending-summary">
+    <p><strong>Total Pending Applications:</strong> {{ totalElements() }}</p>
+  </div>
+</div>

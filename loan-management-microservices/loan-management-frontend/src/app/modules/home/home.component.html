@@ -1,0 +1,68 @@
+<div class="home-container">
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">credit_score</mat-icon>
+        <h1 class="brand-name">Loan Pro</h1>
+      </div>
+
+      <h2 class="hero-title">Your Gateway to Financial Freedom</h2>
+      <p class="hero-subtitle">
+        Fast, secure, and hassle-free loans tailored to your needs.
+        Experience the future of lending with our advanced loan management system.
+      </p>
+
+      <div class="cta-buttons">
+        <button mat-raised-button color="primary" routerLink="/auth/login" class="cta-btn login-btn">
+          <mat-icon>login</mat-icon>
+          <span>Login</span>
+        </button>
+        <button mat-raised-button color="accent" routerLink="/auth/register" class="cta-btn register-btn">
+          <mat-icon>person_add</mat-icon>
+          <span>Register Now</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <h2 class="section-title">Why Choose Us?</h2>
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon-wrapper">
+              <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
+            </div>
+            <h3 class="feature-title">{{ feature.title }}</h3>
+            <p class="feature-description">{{ feature.description }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <div class="stat-item">
+      <h3 class="stat-number">10K+</h3>
+      <p class="stat-label">Happy Customers</p>
+    </div>
+    <div class="stat-item">
+      <h3 class="stat-number">₹500Cr+</h3>
+      <p class="stat-label">Loans Disbursed</p>
+    </div>
+    <div class="stat-item">
+      <h3 class="stat-number">98%</h3>
+      <p class="stat-label">Approval Rate</p>
+    </div>
+    <div class="stat-item">
+      <h3 class="stat-number">24hrs</h3>
+      <p class="stat-label">Quick Processing</p>
+    </div>
+  </div>
+
+  <footer class="home-footer">
+    <p>&copy; 2024 LoanPro Management System. All rights reserved.</p>
+    <p class="footer-tagline">Empowering Financial Dreams</p>
+  </footer>
+</div>

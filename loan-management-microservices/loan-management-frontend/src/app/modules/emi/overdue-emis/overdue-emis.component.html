@@ -1,0 +1,176 @@
+<app-page-header
+  title="Overdue EMIs"
+  subtitle="Monitor and manage overdue EMI payments across all customers"
+  [showBackButton]="true"
+  backRoute="/dashboard">
+  <button actions mat-raised-button color="accent" (click)="loadOverdueEmis()">
+    <mat-icon>refresh</mat-icon>
+    Refresh Data
+  </button>
+</app-page-header>
+
+<div class="content-container">
+  <!-- Summary Cards -->
+  <div class="summary-cards" *ngIf="!isLoading()">
+    <div class="summary-card critical">
+      <div class="card-icon">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-label">Total Overdue EMIs</div>
+        <div class="card-value">{{ overdueEmis().length }}</div>
+      </div>
+    </div>
+
+    <div class="summary-card warning">
+      <div class="card-icon">
+        <mat-icon>payments</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-label">Overdue Amount</div>
+        <div class="card-value">{{ getTotalOverdueAmount() | inrCurrency }}</div>
+      </div>
+    </div>
+
+    <div class="summary-card info">
+      <div class="card-icon">
+        <mat-icon>account_balance_wallet</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-label">Total Outstanding</div>
+        <div class="card-value">{{ getTotalOutstandingBalance() | inrCurrency }}</div>
+      </div>
+    </div>
+
+    <div class="summary-card customers">
+      <div class="card-icon">
+        <mat-icon>people</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-label">Affected Customers</div>
+        <div class="card-value">{{ getUniqueCustomers() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Message -->
+  <div class="alert-message" *ngIf="overdueEmis().length > 0">
+    <mat-icon>priority_high</mat-icon>
+    <div class="alert-content">
+      <strong>Attention Required!</strong>
+      <p>{{ overdueEmis().length }} EMI payment(s) are overdue. Please take immediate action to follow up with customers.</p>
+    </div>
+  </div>
+
+  <!-- Overdue EMIs Table -->
+  <div class="table-container" *ngIf="!isLoading()">
+    <table mat-table [dataSource]="overdueEmis()" class="overdue-table">
+      <!-- Loan ID -->
+      <ng-container matColumnDef="loanId">
+        <th mat-header-cell *matHeaderCellDef>Loan #</th>
+        <td mat-cell *matCellDef="let emi">
+          <a [routerLink]="['/loans', emi.loanId]" class="loan-link">
+            <mat-icon>description</mat-icon>
+            {{ emi.loanId }}
+          </a>
+        </td>
+      </ng-container>
+
+      <!-- Customer Name -->
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let emi">
+          <div class="customer-info">
+            <mat-icon>person</mat-icon>
+            <span>{{ emi.loan?.customerName || 'Loading...' }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- EMI Number -->
+      <ng-container matColumnDef="installmentNumber">
+        <th mat-header-cell *matHeaderCellDef>EMI #</th>
+        <td mat-cell *matCellDef="let emi">
+          <strong>{{ emi.installmentNumber }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Due Date -->
+      <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let emi">
+          <div class="due-date overdue">
+            <mat-icon>event</mat-icon>
+            {{ emi.dueDate | date: 'dd MMM yyyy' }}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Days Overdue -->
+      <ng-container matColumnDef="daysOverdue">
+        <th mat-header-cell *matHeaderCellDef>Days Overdue</th>
+        <td mat-cell *matCellDef="let emi">
+          <mat-chip [ngClass]="'severity-' + getSeverityClass(emi.daysOverdue)">
+            <mat-icon>schedule</mat-icon>
+            {{ emi.daysOverdue }} days
+            <span class="severity-label">{{ getSeverityLabel(emi.daysOverdue) }}</span>
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- EMI Amount -->
+      <ng-container matColumnDef="totalEmi">
+        <th mat-header-cell *matHeaderCellDef>EMI Amount</th>
+        <td mat-cell *matCellDef="let emi">
+          <div class="amount overdue-amount">
+            {{ emi.totalEmi | inrCurrency }}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Outstanding Balance -->
+      <ng-container matColumnDef="outstandingBalance">
+        <th mat-header-cell *matHeaderCellDef>Outstanding</th>
+        <td mat-cell *matCellDef="let emi">
+          {{ emi.outstandingBalance | inrCurrency }}
+        </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let emi">
+          <div class="action-buttons">
+            <button mat-icon-button
+                    color="primary"
+                    [routerLink]="['/loans', emi.loanId]"
+                    matTooltip="View Loan Details">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button
+                    color="accent"
+                    [routerLink]="['/emis/loan', emi.loanId]"
+                    matTooltip="View EMI Schedule">
+              <mat-icon>calendar_today</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="overdue-row"></tr>
+    </table>
+
+    <div *ngIf="overdueEmis().length === 0" class="no-data success">
+      <mat-icon>check_circle</mat-icon>
+      <p>No Overdue EMIs!</p>
+      <p class="subtitle">All EMI payments are up to date. Great job!</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+    <p>Loading overdue EMI data...</p>
+  </div>
+</div>

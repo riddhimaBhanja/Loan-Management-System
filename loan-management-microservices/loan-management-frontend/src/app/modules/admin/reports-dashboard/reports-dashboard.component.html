@@ -1,0 +1,338 @@
+<app-page-header
+  title="Reports & Analytics"
+  subtitle="View comprehensive reports and analytics for loans and EMI collections"
+  [showBackButton]="true"
+  backRoute="/dashboard">
+</app-page-header>
+
+<div class="content-container">
+  <!-- Date Range Selector -->
+  <mat-card class="date-range-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>date_range</mat-icon>
+        Select Report Period
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="dateRangeForm" class="date-form">
+        <div class="date-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="loadAllReports()" [disabled]="dateRangeForm.invalid">
+            <mat-icon>refresh</mat-icon>
+            Generate Reports
+          </button>
+        </div>
+
+        <div class="quick-ranges">
+          <span class="label">Quick Select:</span>
+          <button mat-button (click)="setQuickRange('today')">Today</button>
+          <button mat-button (click)="setQuickRange('week')">Last 7 Days</button>
+          <button mat-button (click)="setQuickRange('month')">This Month</button>
+          <button mat-button (click)="setQuickRange('quarter')">This Quarter</button>
+          <button mat-button (click)="setQuickRange('year')">This Year</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Reports Tabs -->
+  <mat-tab-group class="reports-tabs">
+    <!-- Loan Summary Report Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>account_balance</mat-icon>
+        Loan Summary
+      </ng-template>
+
+      <div class="tab-content" *ngIf="!isLoadingLoanReport()">
+        <div *ngIf="loanReport(); else noLoanData">
+          <!-- Summary Cards -->
+          <div class="summary-grid">
+            <div class="stat-card total">
+              <div class="card-icon">
+                <mat-icon>description</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Total Loan Applications</div>
+                <div class="card-value">{{ loanReport()!.totalLoans }}</div>
+                <div class="card-amount">{{ loanReport()!.totalAmount | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card success">
+              <div class="card-icon">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Approved Loans</div>
+                <div class="card-value">{{ loanReport()!.approvedLoans }}</div>
+                <div class="card-amount">{{ loanReport()!.approvedAmount | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card warning">
+              <div class="card-icon">
+                <mat-icon>pending</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Pending Review</div>
+                <div class="card-value">{{ loanReport()!.pendingLoans }}</div>
+                <div class="card-subtitle">Awaiting decision</div>
+              </div>
+            </div>
+
+            <div class="stat-card danger">
+              <div class="card-icon">
+                <mat-icon>cancel</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Rejected Loans</div>
+                <div class="card-value">{{ loanReport()!.rejectedLoans }}</div>
+                <div class="card-subtitle">{{ calculateRejectionRate().toFixed(1) }}% rejection rate</div>
+              </div>
+            </div>
+
+            <div class="stat-card info">
+              <div class="card-icon">
+                <mat-icon>payment</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Disbursed Loans</div>
+                <div class="card-value">{{ loanReport()!.disbursedLoans }}</div>
+                <div class="card-amount">{{ loanReport()!.disbursedAmount | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card accent">
+              <div class="card-icon">
+                <mat-icon>trending_up</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Approval Rate</div>
+                <div class="card-value">{{ calculateApprovalRate().toFixed(1) }}%</div>
+                <div class="card-subtitle">Success metric</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Table -->
+          <mat-card class="details-card">
+            <mat-card-header>
+              <mat-card-title>Loan Summary Details</mat-card-title>
+              <button mat-raised-button color="accent" (click)="exportLoanReport()">
+                <mat-icon>download</mat-icon>
+                Export CSV
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="[loanReport()!]" class="details-table">
+                <ng-container matColumnDef="metric">
+                  <th mat-header-cell *matHeaderCellDef>Metric</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div>Total Applications</div>
+                    <div>Approved</div>
+                    <div>Rejected</div>
+                    <div>Pending</div>
+                    <div>Disbursed</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="count">
+                  <th mat-header-cell *matHeaderCellDef>Count</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div><strong>{{ report.totalLoans }}</strong></div>
+                    <div>{{ report.approvedLoans }}</div>
+                    <div>{{ report.rejectedLoans }}</div>
+                    <div>{{ report.pendingLoans }}</div>
+                    <div>{{ report.disbursedLoans }}</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div><strong>{{ report.totalAmount | inrCurrency }}</strong></div>
+                    <div>{{ report.approvedAmount | inrCurrency }}</div>
+                    <div>-</div>
+                    <div>-</div>
+                    <div>{{ report.disbursedAmount | inrCurrency }}</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="percentage">
+                  <th mat-header-cell *matHeaderCellDef>Percentage</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div>100%</div>
+                    <div>{{ calculateApprovalRate().toFixed(1) }}%</div>
+                    <div>{{ calculateRejectionRate().toFixed(1) }}%</div>
+                    <div>{{ ((report.pendingLoans / report.totalLoans) * 100).toFixed(1) }}%</div>
+                    <div>{{ calculateDisbursementRate().toFixed(1) }}%</div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['metric', 'count', 'amount', 'percentage']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['metric', 'count', 'amount', 'percentage'];"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <ng-template #noLoanData>
+          <div class="no-data">
+            <mat-icon>inbox</mat-icon>
+            <p>No loan data available for the selected period</p>
+            <p class="subtitle">Try selecting a different date range</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="loading-state" *ngIf="isLoadingLoanReport()">
+        <mat-spinner></mat-spinner>
+        <p>Loading loan report...</p>
+      </div>
+    </mat-tab>
+
+    <!-- EMI Collection Report Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>payments</mat-icon>
+        EMI Collections
+      </ng-template>
+
+      <div class="tab-content" *ngIf="!isLoadingEmiReport()">
+        <div *ngIf="emiReport(); else noEmiData">
+          <!-- Summary Cards -->
+          <div class="summary-grid">
+            <div class="stat-card total">
+              <div class="card-icon">
+                <mat-icon>event</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Total EMIs Due</div>
+                <div class="card-value">{{ emiReport()!.totalEmisDue }}</div>
+                <div class="card-amount">{{ emiReport()!.totalAmountDue | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card success">
+              <div class="card-icon">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">EMIs Collected</div>
+                <div class="card-value">{{ emiReport()!.totalEmisCollected }}</div>
+                <div class="card-amount">{{ emiReport()!.totalAmountCollected | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card danger">
+              <div class="card-icon">
+                <mat-icon>warning</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Overdue EMIs</div>
+                <div class="card-value">{{ emiReport()!.totalEmisOverdue }}</div>
+                <div class="card-amount">{{ emiReport()!.totalAmountOverdue | inrCurrency }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card accent">
+              <div class="card-icon">
+                <mat-icon>show_chart</mat-icon>
+              </div>
+              <div class="card-content">
+                <div class="card-label">Collection Rate</div>
+                <div class="card-value">{{ emiReport()!.collectionRate.toFixed(1) }}%</div>
+                <div class="card-subtitle">Performance metric</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Table -->
+          <mat-card class="details-card">
+            <mat-card-header>
+              <mat-card-title>EMI Collection Details</mat-card-title>
+              <button mat-raised-button color="accent" (click)="exportEmiReport()">
+                <mat-icon>download</mat-icon>
+                Export CSV
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <table mat-table [dataSource]="[emiReport()!]" class="details-table">
+                <ng-container matColumnDef="metric">
+                  <th mat-header-cell *matHeaderCellDef>Metric</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div>Total Due</div>
+                    <div>Collected</div>
+                    <div>Overdue</div>
+                    <div>Outstanding</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="count">
+                  <th mat-header-cell *matHeaderCellDef>Count</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div><strong>{{ report.totalEmisDue }}</strong></div>
+                    <div>{{ report.totalEmisCollected }}</div>
+                    <div>{{ report.totalEmisOverdue }}</div>
+                    <div>{{ report.totalEmisDue - report.totalEmisCollected }}</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div><strong>{{ report.totalAmountDue | inrCurrency }}</strong></div>
+                    <div class="success-text">{{ report.totalAmountCollected | inrCurrency }}</div>
+                    <div class="danger-text">{{ report.totalAmountOverdue | inrCurrency }}</div>
+                    <div>{{ (report.totalAmountDue - report.totalAmountCollected) | inrCurrency }}</div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="percentage">
+                  <th mat-header-cell *matHeaderCellDef>Percentage</th>
+                  <td mat-cell *matCellDef="let report">
+                    <div>100%</div>
+                    <div>{{ report.collectionRate.toFixed(1) }}%</div>
+                    <div>{{ ((report.totalEmisOverdue / report.totalEmisDue) * 100).toFixed(1) }}%</div>
+                    <div>{{ (100 - report.collectionRate).toFixed(1) }}%</div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['metric', 'count', 'amount', 'percentage']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['metric', 'count', 'amount', 'percentage'];"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <ng-template #noEmiData>
+          <div class="no-data">
+            <mat-icon>inbox</mat-icon>
+            <p>No EMI data available for the selected period</p>
+            <p class="subtitle">Try selecting a different date range</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="loading-state" *ngIf="isLoadingEmiReport()">
+        <mat-spinner></mat-spinner>
+        <p>Loading EMI report...</p>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

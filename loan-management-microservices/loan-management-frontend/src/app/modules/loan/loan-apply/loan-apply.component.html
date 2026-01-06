@@ -1,0 +1,189 @@
+<app-layout>
+  <div class="loan-apply-container">
+    <div class="page-header">
+      <h1>Apply for Loan</h1>
+      <button mat-button routerLink="/dashboard">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <mat-card class="alert error-alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </mat-card>
+    }
+
+    @if (successMessage()) {
+      <mat-card class="alert success-alert">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ successMessage() }}</span>
+      </mat-card>
+    }
+
+    <mat-card class="application-card">
+      <mat-stepper #stepper linear>
+        <!-- Step 1: Select Loan Type -->
+        <mat-step [stepControl]="loanTypeForm">
+          <form [formGroup]="loanTypeForm">
+            <ng-template matStepLabel>Select Loan Type</ng-template>
+            <h2>Choose Your Loan Type</h2>
+
+            @if (isLoading()) {
+              <div class="loading-container">
+                <mat-spinner></mat-spinner>
+                <p>Loading loan types...</p>
+              </div>
+            } @else {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Loan Type</mat-label>
+                <mat-select formControlName="loanTypeId">
+                  @for (loanType of loanTypes(); track loanType.id) {
+                    <mat-option [value]="loanType.id">
+                      {{ loanType.name }} ({{ formatCurrency(loanType.minAmount) }} - {{ formatCurrency(loanType.maxAmount) }})
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-error>Please select a loan type</mat-error>
+              </mat-form-field>
+
+              @if (selectedLoanType()) {
+                <mat-card class="loan-type-details">
+                  <h3>{{ selectedLoanType()?.name }}</h3>
+                  <p class="description">{{ selectedLoanType()?.description }}</p>
+                  <div class="details-grid">
+                    <div class="detail-item">
+                      <label>Amount Range</label>
+                      <span>{{ formatCurrency(selectedLoanType()!.minAmount) }} - {{ formatCurrency(selectedLoanType()!.maxAmount) }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <label>Tenure Range</label>
+                      <span>{{ selectedLoanType()!.minTenureMonths }} - {{ selectedLoanType()!.maxTenureMonths }} months</span>
+                    </div>
+                    <div class="detail-item">
+                      <label>Interest Rate</label>
+                      <span>{{ selectedLoanType()!.interestRate }}% per annum</span>
+                    </div>
+                  </div>
+                </mat-card>
+              }
+            }
+
+            <div class="button-row">
+              <button mat-raised-button color="primary" matStepperNext [disabled]="loanTypeForm.invalid">
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2: Loan Details -->
+        <mat-step [stepControl]="loanDetailsForm">
+          <form [formGroup]="loanDetailsForm">
+            <ng-template matStepLabel>Loan Details</ng-template>
+            <h2>Loan Details</h2>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Requested Amount</mat-label>
+              <input matInput type="number" formControlName="amount" placeholder="Enter amount" />
+              <span matPrefix>₹&nbsp;</span>
+              @if (loanDetailsForm.get('amount')?.invalid && loanDetailsForm.get('amount')?.touched && selectedLoanType()) {
+                <mat-error>
+                  Amount must be between {{ formatCurrency(selectedLoanType()!.minAmount) }} and {{ formatCurrency(selectedLoanType()!.maxAmount) }}
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tenure (Months)</mat-label>
+              <input matInput type="number" formControlName="tenureMonths" placeholder="Enter tenure" />
+              @if (selectedLoanType()) {
+                <mat-hint>{{ selectedLoanType()!.minTenureMonths }} - {{ selectedLoanType()!.maxTenureMonths }} months</mat-hint>
+              }
+              @if (loanDetailsForm.get('tenureMonths')?.invalid && loanDetailsForm.get('tenureMonths')?.touched && selectedLoanType()) {
+                <mat-error>
+                  Tenure must be between {{ selectedLoanType()!.minTenureMonths }} and {{ selectedLoanType()!.maxTenureMonths }} months
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Purpose of Loan</mat-label>
+              <textarea matInput formControlName="purpose" rows="3" placeholder="Describe the purpose of this loan"></textarea>
+              <mat-hint>Minimum 10 characters</mat-hint>
+              @if (loanDetailsForm.get('purpose')?.invalid && loanDetailsForm.get('purpose')?.touched) {
+                <mat-error>Purpose must be at least 10 characters</mat-error>
+              }
+            </mat-form-field>
+
+            @if (getEstimatedEmi() > 0) {
+              <mat-card class="emi-estimate">
+                <h4>Estimated EMI</h4>
+                <p class="emi-amount">{{ formatCurrency(getEstimatedEmi()) }}/month</p>
+                <p class="note">*This is an approximate value. Actual EMI will be calculated upon approval.</p>
+              </mat-card>
+            }
+
+            <div class="button-row">
+              <button mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Back
+              </button>
+              <button mat-raised-button color="primary" matStepperNext [disabled]="loanDetailsForm.invalid">
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 3: Employment Details -->
+        <mat-step [stepControl]="employmentForm">
+          <form [formGroup]="employmentForm">
+            <ng-template matStepLabel>Employment Details</ng-template>
+            <h2>Employment Information</h2>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Employment Status</mat-label>
+              <mat-select formControlName="employmentStatus">
+                @for (status of employmentStatuses; track status) {
+                  <mat-option [value]="status">{{ getEmploymentStatusLabel(status) }}</mat-option>
+                }
+              </mat-select>
+              <mat-error>Please select employment status</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Monthly Income</mat-label>
+              <input matInput type="number" formControlName="monthlyIncome" placeholder="Enter monthly income" />
+              <span matPrefix>₹&nbsp;</span>
+              @if (employmentForm.get('monthlyIncome')?.invalid && employmentForm.get('monthlyIncome')?.touched) {
+                <mat-error>Please enter a valid monthly income</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="button-row">
+              <button mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Back
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onSubmit()"
+                [disabled]="loanTypeForm.invalid || loanDetailsForm.invalid || employmentForm.invalid || isSubmitting()">
+                @if (isSubmitting()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  <span>Submit Application</span>
+                }
+              </button>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+    </mat-card>
+  </div>
+</app-layout>

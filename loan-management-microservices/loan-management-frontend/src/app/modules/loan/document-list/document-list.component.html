@@ -1,0 +1,71 @@
+<div class="document-list-container">
+  <h3>Uploaded Documents</h3>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading documents...</p>
+  </div>
+
+  <div *ngIf="!isLoading && documents.length === 0" class="empty-state">
+    <i class="fas fa-folder-open fa-3x"></i>
+    <p>No documents uploaded yet</p>
+    <small>Upload your first document using the form above</small>
+  </div>
+
+  <div *ngIf="!isLoading && documents.length > 0" class="documents-grid">
+    <div *ngFor="let document of documents" class="document-card">
+      <div class="document-icon">
+        <i [class]="getFileIcon(document.contentType)"></i>
+      </div>
+
+      <div class="document-info">
+        <h4 class="document-name">{{ document.originalFileName }}</h4>
+
+        <div class="document-meta">
+          <span class="badge badge-type">
+            {{ documentTypeLabels[document.documentType] }}
+          </span>
+          <span class="document-size">{{ formatFileSize(document.fileSize) }}</span>
+        </div>
+
+        <div class="document-details">
+          <p class="uploaded-by">
+            <i class="fas fa-user"></i>
+            Uploaded by: {{ document.uploadedBy }}
+          </p>
+          <p class="uploaded-at">
+            <i class="fas fa-clock"></i>
+            {{ formatDate(document.uploadedAt) }}
+          </p>
+        </div>
+      </div>
+
+      <div class="document-actions">
+        <button
+          type="button"
+          class="btn btn-download"
+          (click)="downloadDocument(document)"
+          title="Download document">
+          <i class="fas fa-download"></i>
+          Download
+        </button>
+
+        <button
+          *ngIf="canDelete"
+          type="button"
+          class="btn btn-delete"
+          (click)="deleteDocument(document)"
+          title="Delete document">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && documents.length > 0" class="document-summary">
+    <p>Total documents: <strong>{{ documents.length }}</strong></p>
+  </div>
+</div>

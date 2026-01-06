@@ -1,0 +1,258 @@
+<app-page-header
+  [title]="'Loan Application - ' + (loan()?.applicationNumber || '')"
+  subtitle="View and manage loan application details"
+  [showBackButton]="true"
+  backRoute="/dashboard">
+
+  <div actions>
+    <button mat-raised-button color="primary" (click)="markAsUnderReview()" *ngIf="canMarkUnderReview()">
+      <mat-icon>rate_review</mat-icon>
+      Mark Under Review
+    </button>
+
+    <button mat-raised-button color="accent" (click)="navigateToApproval()" *ngIf="canApproveOrReject()">
+      <mat-icon>check_circle</mat-icon>
+      Review Application
+    </button>
+
+    <button mat-raised-button color="primary" (click)="disburseLoan()" *ngIf="canDisburse()">
+      <mat-icon>account_balance</mat-icon>
+      Disburse Loan
+    </button>
+
+    <button mat-raised-button (click)="viewEmiSchedule()" *ngIf="canViewEmi()">
+      <mat-icon>schedule</mat-icon>
+      View EMI Schedule
+    </button>
+  </div>
+</app-page-header>
+
+<div class="content-container" *ngIf="loan() as loanData">
+
+  <div class="details-grid">
+    <!-- Basic Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Basic Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Application Number:</span>
+          <span class="value">{{ loanData.applicationNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <mat-chip [ngClass]="getStatusBadgeClass(loanData.status)">
+            {{ (loanData.status | statusBadge).text }}
+          </mat-chip>
+        </div>
+        <div class="info-row">
+          <span class="label">Loan Type:</span>
+          <span class="value">{{ loanData.loanTypeName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Applied Date:</span>
+          <span class="value">{{ loanData.appliedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Customer Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Customer Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Name:</span>
+          <span class="value">{{ loanData.customerName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Employment Status:</span>
+          <mat-chip [ngClass]="'status-primary'">
+            {{ (loanData.employmentStatus | statusBadge).text }}
+          </mat-chip>
+        </div>
+        <div class="info-row">
+          <span class="label">Monthly Income:</span>
+          <span class="value">{{ loanData.monthlyIncome | inrCurrency }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Loan Details Card -->
+    <mat-card class="info-card full-width">
+      <mat-card-header>
+        <mat-card-title>Loan Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="label">Requested Amount:</span>
+            <span class="value highlight">{{ loanData.requestedAmount | inrCurrency }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Tenure:</span>
+            <span class="value">{{ loanData.tenureMonths }} months</span>
+          </div>
+          <div class="info-row" *ngIf="loanData.approvedAmount">
+            <span class="label">Approved Amount:</span>
+            <span class="value highlight">{{ loanData.approvedAmount | inrCurrency }}</span>
+          </div>
+          <div class="info-row" *ngIf="loanData.interestRate">
+            <span class="label">Interest Rate:</span>
+            <span class="value">{{ loanData.interestRate }}% per annum</span>
+          </div>
+          <div class="info-row" *ngIf="loanData.emiAmount">
+            <span class="label">EMI Amount:</span>
+            <span class="value highlight">{{ loanData.emiAmount | inrCurrency }}</span>
+          </div>
+          <div class="info-row" *ngIf="loanData.totalPayable">
+            <span class="label">Total Payable:</span>
+            <span class="value">{{ loanData.totalPayable | inrCurrency }}</span>
+          </div>
+        </div>
+
+        <mat-divider class="section-divider"></mat-divider>
+
+        <div class="info-row">
+          <span class="label">Purpose:</span>
+          <p class="value purpose-text">{{ loanData.purpose }}</p>
+        </div>
+
+        <div class="info-row" *ngIf="loanData.remarks">
+          <span class="label">Remarks:</span>
+          <p class="value remarks-text">{{ loanData.remarks }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Officer Information Card (if reviewed) -->
+    <mat-card class="info-card full-width" *ngIf="loanData.loanOfficerName">
+      <mat-card-header>
+        <mat-card-title>Review Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Reviewed By:</span>
+          <span class="value">{{ loanData.loanOfficerName }}</span>
+        </div>
+        <div class="info-row" *ngIf="loanData.reviewedAt">
+          <span class="label">Reviewed Date:</span>
+          <span class="value">{{ loanData.reviewedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-row" *ngIf="loanData.approvedAt">
+          <span class="label">Approved Date:</span>
+          <span class="value">{{ loanData.approvedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Disbursement Details Card (if disbursed) -->
+    <mat-card class="info-card full-width disbursement-card" *ngIf="disbursementDetails() && !isLoadingDisbursement()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>payment</mat-icon>
+          Disbursement Details
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="label">Disbursement Date:</span>
+            <span class="value highlight">{{ disbursementDetails()!.disbursementDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Disbursed Amount:</span>
+            <span class="value highlight">{{ disbursementDetails()!.amount | inrCurrency }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Disbursement Method:</span>
+            <span class="value">
+              <mat-chip class="method-chip">{{ disbursementDetails()!.disbursementMethod }}</mat-chip>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label">Status:</span>
+            <span class="value">
+              <mat-chip [ngClass]="getStatusBadgeClass(disbursementDetails()!.status)">
+                {{ disbursementDetails()!.status }}
+              </mat-chip>
+            </span>
+          </div>
+        </div>
+
+        <!-- Bank Details Section (if available) -->
+        <div *ngIf="disbursementDetails()!.accountNumber || disbursementDetails()!.bankName || disbursementDetails()!.ifscCode">
+          <mat-divider class="section-divider"></mat-divider>
+
+          <div class="bank-details-section">
+            <h4 class="section-title">
+              <mat-icon>account_balance</mat-icon>
+              Bank Account Details
+            </h4>
+            <div class="info-grid">
+              <div class="info-row" *ngIf="disbursementDetails()!.accountNumber">
+                <span class="label">Account Number:</span>
+                <span class="value">{{ disbursementDetails()!.accountNumber }}</span>
+              </div>
+              <div class="info-row" *ngIf="disbursementDetails()!.bankName">
+                <span class="label">Bank Name:</span>
+                <span class="value">{{ disbursementDetails()!.bankName }}</span>
+              </div>
+              <div class="info-row" *ngIf="disbursementDetails()!.ifscCode">
+                <span class="label">IFSC Code:</span>
+                <span class="value">{{ disbursementDetails()!.ifscCode }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="section-divider"></mat-divider>
+
+        <!-- Additional Details -->
+        <div class="info-grid">
+          <div class="info-row" *ngIf="disbursementDetails()!.disbursedBy">
+            <span class="label">Disbursed By:</span>
+            <span class="value">{{ disbursementDetails()!.disbursedBy }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Transaction Time:</span>
+            <span class="value">{{ disbursementDetails()!.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+          </div>
+        </div>
+
+        <div class="info-row" *ngIf="disbursementDetails()!.remarks">
+          <span class="label">Remarks:</span>
+          <p class="value remarks-text">{{ disbursementDetails()!.remarks }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Disbursement Loading State -->
+    <mat-card class="info-card full-width" *ngIf="isLoadingDisbursement()">
+      <mat-card-content>
+        <div class="loading-inline">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Loading disbursement details...</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Document Management Section -->
+    <div class="full-width document-section">
+      <app-document-upload
+        [loanId]="loanData.id"
+        (documentUploaded)="onDocumentUploaded($event)">
+      </app-document-upload>
+
+      <app-document-list
+        [loanId]="loanData.id">
+      </app-document-list>
+    </div>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="isLoading()">
+  <mat-spinner></mat-spinner>
+</div>

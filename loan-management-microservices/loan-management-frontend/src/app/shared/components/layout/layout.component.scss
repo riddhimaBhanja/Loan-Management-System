@@ -1,0 +1,207 @@
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  backdrop-filter: blur(10px);
+
+  .mat-toolbar {
+    background: transparent !important;
+  }
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-left: 12px;
+  color: white;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.user-name {
+  margin: 0 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 15px;
+}
+
+.user-menu-header {
+  padding: 20px;
+  cursor: default !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+
+  .user-name-menu {
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 6px;
+    color: #333;
+  }
+
+  .user-role {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: capitalize;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+}
+
+.sidenav-container {
+  position: absolute;
+  top: 64px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.sidenav {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(102, 126, 234, 0.1);
+
+  mat-nav-list {
+    padding-top: 20px;
+
+    a {
+      margin: 6px 12px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      padding: 12px 16px !important;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.75);
+
+      mat-icon {
+        color: rgba(0, 0, 0, 0.6);
+        margin-right: 12px;
+        transition: all 0.3s ease;
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+        transform: translateX(4px);
+
+        mat-icon {
+          transform: scale(1.1);
+        }
+      }
+
+      &.active {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        font-weight: 600;
+
+        color: #667eea;
+
+        mat-icon {
+          color: #667eea;
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 70%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 0 4px 4px 0;
+        }
+      }
+    }
+  }
+}
+
+.content {
+  position: relative;
+  overflow: auto;
+  background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.92) 0%, rgba(118, 75, 162, 0.90) 25%, rgba(240, 147, 251, 0.88) 50%, rgba(79, 172, 254, 0.90) 75%, rgba(0, 242, 254, 0.92) 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.content-wrapper {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  position: relative;
+  z-index: 1;
+}
+
+// Material button override for toolbar
+.mat-toolbar {
+  .mat-mdc-icon-button {
+    color: white !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 18px;
+    margin-left: 8px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .sidenav {
+    width: 220px;
+  }
+
+  .content-wrapper {
+    padding: 16px;
+  }
+}
