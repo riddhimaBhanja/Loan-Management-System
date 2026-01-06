@@ -1,0 +1,259 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # Auth Service Routes
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+
+        # Loan Application Service Routes
+        - id: loan-application-service
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loan-types/**,/api/documents/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - Submit Application
+        - id: loan-application-submit
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans/apply
+            - Method=POST
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - My Loans
+        - id: loan-application-my-loans
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans/my-loans
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - Customer Loans
+        - id: loan-application-customer-loans
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans/customer/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - Loans by Status
+        - id: loan-application-status
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans/status/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - Get All Loans (with optional query params)
+        - id: loan-application-get-all
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans
+            - Method=GET
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Application - Get Loan by ID
+        - id: loan-application-get-by-id
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/api/loans/*
+            - Method=GET
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-application-service
+                fallbackUri: forward:/fallback/loan-application
+
+        # Loan Disbursement Route (longer timeout for EMI generation)
+        - id: loan-disbursement
+          uri: lb://LOAN-APPROVAL-SERVICE
+          predicates:
+            - Path=/api/loan-approvals/*/disburse
+            - Method=POST
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-disbursement
+                fallbackUri: forward:/fallback/loan-approval
+
+        # Loan Approval Operations Routes (other operations)
+        - id: loan-approval-operations
+          uri: lb://LOAN-APPROVAL-SERVICE
+          predicates:
+            - Path=/api/loan-approvals/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-approval-service
+                fallbackUri: forward:/fallback/loan-approval
+
+        # Loan Approval Service Routes (catch-all for /api/loans/**)
+        - id: loan-approval-service
+          uri: lb://LOAN-APPROVAL-SERVICE
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loan-approval-service
+                fallbackUri: forward:/fallback/loan-approval
+
+        # EMI Service Routes
+        - id: emi-service
+          uri: lb://EMI-SERVICE
+          predicates:
+            - Path=/api/emis/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: emi-service
+                fallbackUri: forward:/fallback/emi
+
+        # Reporting Service Routes
+        - id: reporting-service
+          uri: lb://REPORTING-SERVICE
+          predicates:
+            - Path=/api/reports/**,/api/dashboard/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: reporting-service
+                fallbackUri: forward:/fallback/reporting
+
+        # Notification Service Routes (internal only)
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/internal/notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: notification-service
+                fallbackUri: forward:/fallback/notification
+
+      default-filters:
+        - JwtAuthenticationFilter
+        - name: Retry
+          args:
+            retries: 3
+            statuses: BAD_GATEWAY,GATEWAY_TIMEOUT
+            methods: GET,POST,PUT,DELETE
+            backoff:
+              firstBackoff: 10ms
+              maxBackoff: 50ms
+              factor: 2
+              basedOnPreviousValue: false
+
+      # Global timeout configuration (default for all routes)
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 20s
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:YourSuperSecretKeyForJWTTokenGenerationChangeThisInProduction12345678901234567890}
+  expiration: 86400000
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.loanmanagement: DEBUG
+
+# Resilience4J Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 18s
+    instances:
+      loan-disbursement:
+        baseConfig: default
+        slowCallDurationThreshold: 25s
+      loan-approval-service:
+        baseConfig: default
+        slowCallDurationThreshold: 25s
+      loan-application-service:
+        baseConfig: default
+      auth-service:
+        baseConfig: default
+      emi-service:
+        baseConfig: default
+      reporting-service:
+        baseConfig: default
+      notification-service:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 20s
+    instances:
+      loan-disbursement:
+        timeoutDuration: 25s
+      loan-approval-service:
+        timeoutDuration: 25s
