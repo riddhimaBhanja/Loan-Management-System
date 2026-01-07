@@ -9,6 +9,7 @@ import com.loanmanagement.loanapp.shared.constants.MessageConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ByteArrayResource;
@@ -16,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +28,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(DocumentController.class)
+@WebMvcTest(controllers = DocumentController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class,
+        com.loanmanagement.loanapp.infrastructure.config.JpaConfig.class
+})
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class DocumentControllerTest {
 
     @Autowired
@@ -34,6 +42,12 @@ class DocumentControllerTest {
 
     @MockBean
     private DocumentService documentService;
+
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtUtil jwtUtil;
+
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void uploadDocument_success() throws Exception {

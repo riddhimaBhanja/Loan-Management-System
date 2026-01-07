@@ -3,17 +3,20 @@ package com.loanmanagement.loanapp.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loanmanagement.loanapp.application.dto.request.LoanApplicationRequest;
 import com.loanmanagement.loanapp.application.dto.response.LoanResponse;
+import com.loanmanagement.loanapp.domain.enums.EmploymentStatus;
 import com.loanmanagement.loanapp.domain.service.LoanApplicationService;
 import com.loanmanagement.loanapp.infrastructure.security.UserPrincipal;
 import com.loanmanagement.loanapp.shared.constants.MessageConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -25,7 +28,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(LoanApplicationController.class)
+@WebMvcTest(controllers = LoanApplicationController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class,
+        com.loanmanagement.loanapp.infrastructure.config.JpaConfig.class
+})
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class LoanApplicationControllerTest {
 
     @Autowired
@@ -33,6 +42,12 @@ class LoanApplicationControllerTest {
 
     @MockBean
     private LoanApplicationService loanApplicationService;
+
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtUtil jwtUtil;
+
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -53,7 +68,14 @@ class LoanApplicationControllerTest {
 
     @Test
     void createLoanApplication_success() throws Exception {
-        LoanApplicationRequest request = new LoanApplicationRequest();
+        LoanApplicationRequest request = LoanApplicationRequest.builder()
+                .loanTypeId(1L)
+                .amount(BigDecimal.valueOf(50000))
+                .tenureMonths(12)
+                .employmentStatus(EmploymentStatus.SALARIED)
+                .monthlyIncome(BigDecimal.valueOf(40000))
+                .purpose("Education")
+                .build();
 
         Mockito.when(loanApplicationService.createLoanApplication(Mockito.any(), Mockito.eq(10L)))
                 .thenReturn(createLoanResponse(1L));

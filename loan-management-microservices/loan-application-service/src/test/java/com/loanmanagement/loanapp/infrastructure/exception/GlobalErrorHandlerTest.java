@@ -53,12 +53,24 @@ class ExceptionTestController {
     }
 }
 
-@WebMvcTest(controllers = ExceptionTestController.class)
+@WebMvcTest(controllers = ExceptionTestController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class,
+        com.loanmanagement.loanapp.infrastructure.config.JpaConfig.class
+})
 @Import(GlobalExceptionHandler.class)
+@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
+@org.springframework.test.context.ActiveProfiles("test")
 class GlobalExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtUtil jwtUtil;
+
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void shouldHandleResourceNotFoundException() throws Exception {
@@ -112,6 +124,6 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500))
                 .andExpect(jsonPath("$.error").value("Internal Server Error"))
-                .andExpect(jsonPath("$.message").value("An unexpected error occurred"));
+                .andExpect(jsonPath("$.message").value("An unexpected error occurred. Please try again later."));
     }
 }

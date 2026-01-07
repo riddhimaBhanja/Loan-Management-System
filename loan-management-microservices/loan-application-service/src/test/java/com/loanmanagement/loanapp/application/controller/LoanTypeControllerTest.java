@@ -9,13 +9,16 @@ import com.loanmanagement.loanapp.shared.constants.MessageConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -23,7 +26,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(LoanTypeController.class)
+@WebMvcTest(controllers = LoanTypeController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class,
+        com.loanmanagement.loanapp.infrastructure.config.JpaConfig.class
+})
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class LoanTypeControllerTest {
 
     @Autowired
@@ -32,12 +41,26 @@ class LoanTypeControllerTest {
     @MockBean
     private LoanTypeService loanTypeService;
 
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtUtil jwtUtil;
+
+    @MockBean
+    private com.loanmanagement.loanapp.infrastructure.security.JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
     void createLoanType_success() throws Exception {
-        CreateLoanTypeRequest request = new CreateLoanTypeRequest();
+        CreateLoanTypeRequest request = CreateLoanTypeRequest.builder()
+                .name("Home Loan")
+                .description("Home loan for residential property")
+                .minAmount(BigDecimal.valueOf(100000))
+                .maxAmount(BigDecimal.valueOf(10000000))
+                .minTenureMonths(12)
+                .maxTenureMonths(360)
+                .interestRate(BigDecimal.valueOf(8.5))
+                .build();
 
         Mockito.when(loanTypeService.createLoanType(Mockito.any()))
                 .thenReturn(new LoanTypeResponse());
