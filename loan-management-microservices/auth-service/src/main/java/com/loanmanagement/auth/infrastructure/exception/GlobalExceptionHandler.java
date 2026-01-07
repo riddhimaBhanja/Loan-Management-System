@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -248,6 +250,40 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle HttpMessageNotReadableException (Malformed JSON)
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex,
+            WebRequest request) {
+        logger.error("Malformed JSON request: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+                "MALFORMED_JSON",
+                "Malformed JSON request"
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle HttpMediaTypeNotSupportedException (Unsupported Media Type)
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(
+            HttpMediaTypeNotSupportedException ex,
+            WebRequest request) {
+        logger.error("Unsupported media type: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+                "UNSUPPORTED_MEDIA_TYPE",
+                "Unsupported media type. Please use application/json"
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     /**

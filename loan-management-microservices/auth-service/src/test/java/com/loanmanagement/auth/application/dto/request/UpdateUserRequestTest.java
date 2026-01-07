@@ -46,8 +46,11 @@ class UpdateUserRequestTest {
 
     @Test
     void shouldFailWhenEmailExceedsMaxLength() {
+        // Create a valid email format that exceeds 100 characters
+        // Local part (50 chars) + @ + domain (55 chars) = 106 characters total
+        // This only violates @Size(max=100), not @Email (local part < 64 chars)
         UpdateUserRequest request = UpdateUserRequest.builder()
-                .email("a".repeat(101) + "@mail.com")
+                .email("a".repeat(50) + "@" + "b".repeat(51) + ".com")
                 .build();
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);

@@ -10,11 +10,11 @@ class ApiResponseTest {
 
     @Test
     void shouldCreateSuccessResponseWithData() {
-        ApiResponse<String> response = ApiResponse.success("DATA");
+        ApiResponse<String> response = ApiResponse.success("Success message", "DATA");
 
         assertTrue(response.getSuccess());
         assertEquals("DATA", response.getData());
-        assertNull(response.getMessage());
+        assertEquals("Success message", response.getMessage());
         assertNotNull(response.getTimestamp());
     }
 

@@ -201,6 +201,7 @@ class AuthServiceImplTest {
         when(userMapper.toEntity(any(RegisterRequest.class))).thenReturn(new User());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User savedUser = invocation.getArgument(0);
+            savedUser.setId(1L); // Set ID to simulate saved entity
             // Verify CUSTOMER role was added
             assertThat(savedUser.getRoles()).isNotEmpty();
             assertThat(savedUser.getRoles().stream()
@@ -209,7 +210,7 @@ class AuthServiceImplTest {
         });
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(jwtTokenProvider.generateToken(any(Authentication.class), anyLong())).thenReturn("token");
+        when(jwtTokenProvider.generateToken(any(Authentication.class), any())).thenReturn("token");
         when(jwtTokenProvider.generateRefreshToken(any(Authentication.class))).thenReturn("refresh");
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
@@ -278,7 +279,7 @@ class AuthServiceImplTest {
         when(jwtTokenProvider.validateToken("valid-refresh-token")).thenReturn(true);
         when(jwtTokenProvider.getUsernameFromToken("valid-refresh-token")).thenReturn("testuser");
         when(userRepository.findByUsernameWithRoles("testuser")).thenReturn(Optional.of(testUser));
-        when(jwtTokenProvider.generateTokenFromUsername("testuser", 86400000L)).thenReturn("new-access-token");
+        when(jwtTokenProvider.generateTokenWithClaims(anyString(), anyLong(), anyString(), anyLong())).thenReturn("new-access-token");
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
         // When
@@ -294,7 +295,7 @@ class AuthServiceImplTest {
         verify(jwtTokenProvider).validateToken("valid-refresh-token");
         verify(jwtTokenProvider).getUsernameFromToken("valid-refresh-token");
         verify(userRepository).findByUsernameWithRoles("testuser");
-        verify(jwtTokenProvider).generateTokenFromUsername("testuser", 86400000L);
+        verify(jwtTokenProvider).generateTokenWithClaims(anyString(), anyLong(), anyString(), anyLong());
     }
 
     @Test
