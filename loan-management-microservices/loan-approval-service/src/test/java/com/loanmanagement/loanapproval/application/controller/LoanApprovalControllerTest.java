@@ -11,6 +11,7 @@ import com.loanmanagement.loanapproval.domain.model.LoanApproval.ApprovalStatus;
 import com.loanmanagement.loanapproval.domain.service.LoanApprovalService;
 import com.loanmanagement.loanapproval.domain.service.LoanClosureService;
 import com.loanmanagement.loanapproval.domain.service.LoanDisbursementService;
+import com.loanmanagement.loanapproval.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,7 +51,13 @@ class LoanApprovalControllerTest {
                 .status(ApprovalStatus.APPROVED)
                 .build();
 
+        UserPrincipal userPrincipal = UserPrincipal.builder()
+                .userId(1L)
+                .username("officer")
+                .build();
+
         when(authentication.getName()).thenReturn("officer");
+        when(authentication.getPrincipal()).thenReturn(userPrincipal);
         when(loanApprovalService.approveLoan(eq(loanId), eq(request), anyLong()))
                 .thenReturn(response);
 
@@ -72,7 +79,13 @@ class LoanApprovalControllerTest {
                 .status(ApprovalStatus.REJECTED)
                 .build();
 
+        UserPrincipal userPrincipal = UserPrincipal.builder()
+                .userId(2L)
+                .username("admin")
+                .build();
+
         when(authentication.getName()).thenReturn("admin");
+        when(authentication.getPrincipal()).thenReturn(userPrincipal);
         when(loanApprovalService.rejectLoan(eq(loanId), eq(request), anyLong()))
                 .thenReturn(response);
 
@@ -93,7 +106,13 @@ class LoanApprovalControllerTest {
                 .loanId(loanId)
                 .build();
 
+        UserPrincipal userPrincipal = UserPrincipal.builder()
+                .userId(3L)
+                .username("officer")
+                .build();
+
         when(authentication.getName()).thenReturn("officer");
+        when(authentication.getPrincipal()).thenReturn(userPrincipal);
         when(loanDisbursementService.disburseLoan(eq(loanId), eq(request), anyLong()))
                 .thenReturn(response);
 

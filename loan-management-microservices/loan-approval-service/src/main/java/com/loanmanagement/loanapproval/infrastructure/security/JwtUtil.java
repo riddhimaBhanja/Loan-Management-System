@@ -123,6 +123,10 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
             return claims.getExpiration();
+        } catch (ExpiredJwtException e) {
+            // For expired tokens, we can still get the expiration date from the exception
+            logger.debug("Token is expired, returning expiration from exception");
+            return e.getClaims().getExpiration();
         } catch (Exception e) {
             logger.error("Error extracting expiration from token", e);
             return null;
@@ -135,7 +139,11 @@ public class JwtUtil {
     public boolean isTokenExpired(String token) {
         try {
             Date expiration = getExpirationFromToken(token);
-            return expiration != null && expiration.before(new Date());
+            // If we can't get expiration (invalid token), consider it expired
+            if (expiration == null) {
+                return true;
+            }
+            return expiration.before(new Date());
         } catch (Exception e) {
             return true;
         }

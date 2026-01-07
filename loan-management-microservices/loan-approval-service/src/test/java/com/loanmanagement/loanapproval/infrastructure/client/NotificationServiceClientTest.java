@@ -6,13 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceClientTest {
@@ -33,8 +33,8 @@ class NotificationServiceClientTest {
 
     @Test
     void sendLoanApprovedNotification_success() {
-        doNothing().when(restTemplate)
-                .postForEntity(anyString(), eq(null), eq(Void.class));
+        when(restTemplate.postForEntity(anyString(), eq(null), eq(Void.class)))
+                .thenReturn(ResponseEntity.ok().build());
 
         assertDoesNotThrow(() ->
                 notificationServiceClient.sendLoanApprovedNotification(
@@ -66,8 +66,8 @@ class NotificationServiceClientTest {
 
     @Test
     void sendLoanRejectedNotification_success() {
-        doNothing().when(restTemplate)
-                .postForEntity(anyString(), eq(null), eq(Void.class));
+        when(restTemplate.postForEntity(anyString(), eq(null), eq(Void.class)))
+                .thenReturn(ResponseEntity.ok().build());
 
         assertDoesNotThrow(() ->
                 notificationServiceClient.sendLoanRejectedNotification(
@@ -81,8 +81,8 @@ class NotificationServiceClientTest {
 
     @Test
     void sendLoanRejectedNotification_nullReason() {
-        doNothing().when(restTemplate)
-                .postForEntity(anyString(), eq(null), eq(Void.class));
+        when(restTemplate.postForEntity(anyString(), eq(null), eq(Void.class)))
+                .thenReturn(ResponseEntity.ok().build());
 
         assertDoesNotThrow(() ->
                 notificationServiceClient.sendLoanRejectedNotification(
@@ -112,8 +112,8 @@ class NotificationServiceClientTest {
 
     @Test
     void sendLoanClosedNotification_success() {
-        doNothing().when(restTemplate)
-                .postForEntity(anyString(), eq(null), eq(Void.class));
+        when(restTemplate.postForEntity(anyString(), eq(null), eq(Void.class)))
+                .thenReturn(ResponseEntity.ok().build());
 
         assertDoesNotThrow(() ->
                 notificationServiceClient.sendLoanClosedNotification(
