@@ -68,4 +68,75 @@ class LoanDisbursementResponseTest {
         assertEquals("Manual disbursement", response.getRemarks());
         assertEquals(now, response.getCreatedAt());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate date = LocalDate.now();
+
+        LoanDisbursementResponse r1 = LoanDisbursementResponse.builder()
+                .id(1L)
+                .loanId(10L)
+                .disbursedBy(100L)
+                .amount(new BigDecimal("50000"))
+                .disbursementDate(date)
+                .createdAt(now)
+                .build();
+
+        LoanDisbursementResponse r2 = LoanDisbursementResponse.builder()
+                .id(1L)
+                .loanId(10L)
+                .disbursedBy(100L)
+                .amount(new BigDecimal("50000"))
+                .disbursementDate(date)
+                .createdAt(now)
+                .build();
+
+        LoanDisbursementResponse r3 = LoanDisbursementResponse.builder()
+                .id(2L)
+                .loanId(20L)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+
+        // Lombok canEqual path
+        assertTrue(r1.canEqual(r2));
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        LoanDisbursementResponse response = LoanDisbursementResponse.builder()
+                .id(1L)
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-a-loan-disbursement-response");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndKeyFields() {
+        LoanDisbursementResponse response = LoanDisbursementResponse.builder()
+                .id(5L)
+                .referenceNumber("TXN-001")
+                .disbursementMethod("BANK_TRANSFER")
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("LoanDisbursementResponse"));
+        assertTrue(value.contains("TXN-001"));
+        assertTrue(value.contains("BANK_TRANSFER"));
+    }
+
+    @Test
+    void canEqual_shouldReturnFalseForDifferentClass() {
+        LoanDisbursementResponse response = LoanDisbursementResponse.builder()
+                .id(1L)
+                .build();
+
+        assertFalse(response.canEqual("invalid-object"));
+    }
+
 }

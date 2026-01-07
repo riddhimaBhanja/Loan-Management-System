@@ -70,4 +70,75 @@ class LoanApprovalResponseTest {
         assertEquals("Rejected after risk analysis", response.getNotes());
         assertEquals(now, response.getCreatedAt());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LoanApprovalResponse r1 = LoanApprovalResponse.builder()
+                .id(1L)
+                .loanId(10L)
+                .approverId(100L)
+                .status(LoanApproval.ApprovalStatus.APPROVED)
+                .approvedAmount(new BigDecimal("50000"))
+                .createdAt(now)
+                .build();
+
+        LoanApprovalResponse r2 = LoanApprovalResponse.builder()
+                .id(1L)
+                .loanId(10L)
+                .approverId(100L)
+                .status(LoanApproval.ApprovalStatus.APPROVED)
+                .approvedAmount(new BigDecimal("50000"))
+                .createdAt(now)
+                .build();
+
+        LoanApprovalResponse r3 = LoanApprovalResponse.builder()
+                .id(2L)
+                .loanId(20L)
+                .status(LoanApproval.ApprovalStatus.REJECTED)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+
+        // Lombok canEqual path
+        assertTrue(r1.canEqual(r2));
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        LoanApprovalResponse response = LoanApprovalResponse.builder()
+                .id(1L)
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-a-loan-approval-response");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndKeyFields() {
+        LoanApprovalResponse response = LoanApprovalResponse.builder()
+                .id(5L)
+                .approverName("Officer A")
+                .status(LoanApproval.ApprovalStatus.APPROVED)
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("LoanApprovalResponse"));
+        assertTrue(value.contains("Officer A"));
+        assertTrue(value.contains("APPROVED"));
+    }
+
+    @Test
+    void canEqual_shouldReturnFalseForDifferentClass() {
+        LoanApprovalResponse response = LoanApprovalResponse.builder()
+                .id(1L)
+                .build();
+
+        assertFalse(response.canEqual("invalid-object"));
+    }
+
 }
