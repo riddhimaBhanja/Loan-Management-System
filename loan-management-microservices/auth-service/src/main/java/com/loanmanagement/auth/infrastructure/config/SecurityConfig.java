@@ -86,6 +86,11 @@ public class SecurityConfig {
                         // Internal API (for microservice-to-microservice calls, no JWT required)
                         .requestMatchers("/api/internal/**").permitAll()
 
+                        // Swagger/OpenAPI endpoints
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         // All other endpoints require authentication (removed role restrictions on /api/users/me)
                         .anyRequest().authenticated()
                 )

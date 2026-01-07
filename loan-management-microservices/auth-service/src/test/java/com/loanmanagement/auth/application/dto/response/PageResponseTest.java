@@ -66,4 +66,108 @@ class PageResponseTest {
         assertTrue(response.getLast());
         assertTrue(response.getEmpty());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        PageResponse<String> r1 = PageResponse.<String>builder()
+                .content(List.of("A", "B"))
+                .totalElements(2L)
+                .totalPages(1)
+                .currentPage(0)
+                .size(2)
+                .first(true)
+                .last(true)
+                .empty(false)
+                .build();
+
+        PageResponse<String> r2 = PageResponse.<String>builder()
+                .content(List.of("A", "B"))
+                .totalElements(2L)
+                .totalPages(1)
+                .currentPage(0)
+                .size(2)
+                .first(true)
+                .last(true)
+                .empty(false)
+                .build();
+
+        PageResponse<String> r3 = PageResponse.<String>builder()
+                .content(List.of("X"))
+                .totalElements(1L)
+                .totalPages(1)
+                .currentPage(0)
+                .size(1)
+                .first(true)
+                .last(true)
+                .empty(false)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        PageResponse<String> response = PageResponse.<String>builder()
+                .content(List.of("A"))
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-a-page-response");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        PageResponse<String> response = PageResponse.<String>builder()
+                .content(List.of("A", "B"))
+                .totalElements(2L)
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("PageResponse"));
+        assertTrue(value.contains("content"));
+        assertTrue(value.contains("totalElements"));
+    }
+
+    @Test
+    void setters_shouldUpdateBooleanFlags() {
+        PageResponse<String> response = new PageResponse<>();
+
+        response.setFirst(true);
+        response.setLast(false);
+        response.setEmpty(true);
+
+        assertTrue(response.getFirst());
+        assertFalse(response.getLast());
+        assertTrue(response.getEmpty());
+    }
+
+    @Test
+    void constructors_shouldCreateObjectsSuccessfully() {
+        PageResponse<String> noArgs = new PageResponse<>();
+        assertNotNull(noArgs);
+
+        PageResponse<String> allArgs = new PageResponse<>(
+                List.of("A"),
+                1L,
+                1,
+                0,
+                1,
+                true,
+                true,
+                false
+        );
+
+        assertEquals(List.of("A"), allArgs.getContent());
+        assertEquals(1L, allArgs.getTotalElements());
+        assertEquals(1, allArgs.getTotalPages());
+        assertEquals(0, allArgs.getCurrentPage());
+        assertEquals(1, allArgs.getSize());
+        assertTrue(allArgs.getFirst());
+        assertTrue(allArgs.getLast());
+        assertFalse(allArgs.getEmpty());
+    }
+
 }

@@ -100,4 +100,115 @@ class ErrorResponseTest {
         assertEquals("Username already taken", errorDetails.getDetails());
         assertEquals(fields, errorDetails.getFields());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkForErrorResponse() {
+        LocalDateTime now = LocalDateTime.now();
+
+        ErrorResponse r1 = ErrorResponse.builder()
+                .success(false)
+                .error(ErrorResponse.ErrorDetails.builder()
+                        .code("ERR")
+                        .message("Error")
+                        .build())
+                .timestamp(now)
+                .build();
+
+        ErrorResponse r2 = ErrorResponse.builder()
+                .success(false)
+                .error(ErrorResponse.ErrorDetails.builder()
+                        .code("ERR")
+                        .message("Error")
+                        .build())
+                .timestamp(now)
+                .build();
+
+        ErrorResponse r3 = ErrorResponse.builder()
+                .success(false)
+                .error(ErrorResponse.ErrorDetails.builder()
+                        .code("DIFF")
+                        .message("Different")
+                        .build())
+                .timestamp(now)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType_ErrorResponse() {
+        ErrorResponse response = ErrorResponse.of("ERR", "Error");
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-error-response");
+    }
+
+    @Test
+    void toString_shouldContainClassName_ErrorResponse() {
+        ErrorResponse response = ErrorResponse.of("ERR", "Error");
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("ErrorResponse"));
+        assertTrue(value.contains("success"));
+    }
+    @Test
+    void equalsAndHashCode_shouldWorkForErrorDetails() {
+        Map<String, String> fields = Map.of("field", "error");
+
+        ErrorResponse.ErrorDetails d1 =
+                ErrorResponse.ErrorDetails.builder()
+                        .code("CODE")
+                        .message("Message")
+                        .details("Details")
+                        .fields(fields)
+                        .build();
+
+        ErrorResponse.ErrorDetails d2 =
+                ErrorResponse.ErrorDetails.builder()
+                        .code("CODE")
+                        .message("Message")
+                        .details("Details")
+                        .fields(fields)
+                        .build();
+
+        ErrorResponse.ErrorDetails d3 =
+                ErrorResponse.ErrorDetails.builder()
+                        .code("OTHER")
+                        .message("Other")
+                        .build();
+
+        assertEquals(d1, d2);
+        assertEquals(d1.hashCode(), d2.hashCode());
+        assertNotEquals(d1, d3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType_ErrorDetails() {
+        ErrorResponse.ErrorDetails details =
+                ErrorResponse.ErrorDetails.builder()
+                        .code("CODE")
+                        .build();
+
+        assertNotEquals(details, null);
+        assertNotEquals(details, "string");
+    }
+
+    @Test
+    void toString_shouldContainClassName_ErrorDetails() {
+        ErrorResponse.ErrorDetails details =
+                ErrorResponse.ErrorDetails.builder()
+                        .code("CODE")
+                        .message("Message")
+                        .build();
+
+        String value = details.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("ErrorDetails"));
+        assertTrue(value.contains("CODE"));
+    }
+
 }

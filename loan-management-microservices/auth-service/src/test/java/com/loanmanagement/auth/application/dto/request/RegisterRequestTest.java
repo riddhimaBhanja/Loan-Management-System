@@ -4,135 +4,178 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("RegisterRequest Validation Tests")
 class RegisterRequestTest {
 
-    private static Validator validator;
+    private Validator validator;
 
-    @BeforeAll
-    static void setupValidator() {
+    @BeforeEach
+    void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
 
     @Test
-    @DisplayName("Should pass validation when all fields are valid")
-    void shouldPassValidation_WhenAllFieldsValid() {
+    void validRegisterRequest_shouldHaveNoViolations() {
         RegisterRequest request = RegisterRequest.builder()
-                .username("valid_user-123")
-                .email("user@example.com")
+                .username("test.user_01")
+                .email("test@example.com")
                 .password("password123")
-                .fullName("Valid User")
-                .phoneNumber("+91-9876543210")
+                .fullName("Test User")
+                .phoneNumber("+919876543210")
                 .build();
 
         Set<ConstraintViolation<RegisterRequest>> violations =
                 validator.validate(request);
 
-        assertThat(violations).isEmpty();
+        assertTrue(violations.isEmpty());
     }
 
     @Test
-    @DisplayName("Should fail validation when username is blank")
-    void shouldFailValidation_WhenUsernameBlank() {
+    void invalidUsername_shouldFailValidation() {
         RegisterRequest request = RegisterRequest.builder()
-                .username("")
-                .email("user@example.com")
+                .username("invalid user!")
+                .email("test@example.com")
                 .password("password123")
-                .fullName("Valid User")
-                .phoneNumber("9876543210")
+                .fullName("Test User")
+                .phoneNumber("+919876543210")
                 .build();
 
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
+        assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
-    @DisplayName("Should fail validation when username pattern is invalid")
-    void shouldFailValidation_WhenUsernamePatternInvalid() {
+    void invalidEmail_shouldFailValidation() {
         RegisterRequest request = RegisterRequest.builder()
-                .username("invalid@user")
-                .email("user@example.com")
-                .password("password123")
-                .fullName("Valid User")
-                .phoneNumber("9876543210")
-                .build();
-
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
-    }
-
-    @Test
-    @DisplayName("Should fail validation when email is invalid")
-    void shouldFailValidation_WhenEmailInvalid() {
-        RegisterRequest request = RegisterRequest.builder()
-                .username("validuser")
+                .username("testuser")
                 .email("invalid-email")
                 .password("password123")
-                .fullName("Valid User")
-                .phoneNumber("9876543210")
+                .fullName("Test User")
+                .phoneNumber("+919876543210")
                 .build();
 
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
+        assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
-    @DisplayName("Should fail validation when password is too short")
-    void shouldFailValidation_WhenPasswordTooShort() {
+    void shortPassword_shouldFailValidation() {
         RegisterRequest request = RegisterRequest.builder()
-                .username("validuser")
-                .email("user@example.com")
+                .username("testuser")
+                .email("test@example.com")
                 .password("123")
-                .fullName("Valid User")
-                .phoneNumber("9876543210")
+                .fullName("Test User")
+                .phoneNumber("+919876543210")
                 .build();
 
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
+        assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
-    @DisplayName("Should fail validation when phone number is invalid")
-    void shouldFailValidation_WhenPhoneNumberInvalid() {
+    void invalidPhoneNumber_shouldFailValidation() {
         RegisterRequest request = RegisterRequest.builder()
-                .username("validuser")
-                .email("user@example.com")
+                .username("testuser")
+                .email("test@example.com")
                 .password("password123")
-                .fullName("Valid User")
+                .fullName("Test User")
                 .phoneNumber("abc123")
                 .build();
 
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
+        assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
-    @DisplayName("Should fail validation when all fields are null")
-    void shouldFailValidation_WhenAllFieldsNull() {
+    void blankFields_shouldFailValidation() {
         RegisterRequest request = new RegisterRequest();
 
-        Set<ConstraintViolation<RegisterRequest>> violations =
-                validator.validate(request);
-
-        assertThat(violations).isNotEmpty();
+        assertFalse(validator.validate(request).isEmpty());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        RegisterRequest req1 = RegisterRequest.builder()
+                .username("user1")
+                .email("user1@test.com")
+                .password("password123")
+                .fullName("User One")
+                .phoneNumber("9876543210")
+                .build();
+
+        RegisterRequest req2 = RegisterRequest.builder()
+                .username("user1")
+                .email("user1@test.com")
+                .password("password123")
+                .fullName("User One")
+                .phoneNumber("9876543210")
+                .build();
+
+        RegisterRequest req3 = RegisterRequest.builder()
+                .username("user2")
+                .email("user2@test.com")
+                .password("password123")
+                .fullName("User Two")
+                .phoneNumber("9876543211")
+                .build();
+
+        assertEquals(req1, req2);
+        assertEquals(req1.hashCode(), req2.hashCode());
+        assertNotEquals(req1, req3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        RegisterRequest request = RegisterRequest.builder()
+                .username("user")
+                .email("user@test.com")
+                .password("password123")
+                .fullName("User")
+                .phoneNumber("9876543210")
+                .build();
+
+        assertNotEquals(request, null);
+        assertNotEquals(request, "some-string");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        RegisterRequest request = RegisterRequest.builder()
+                .username("user")
+                .email("user@test.com")
+                .password("password123")
+                .fullName("User")
+                .phoneNumber("9876543210")
+                .build();
+
+        String result = request.toString();
+
+        assertNotNull(result);
+        assertTrue(result.contains("RegisterRequest"));
+        assertTrue(result.contains("user"));
+        assertTrue(result.contains("user@test.com"));
+    }
+
+    @Test
+    void constructors_shouldCreateObjectsSuccessfully() {
+        RegisterRequest noArgs = new RegisterRequest();
+        assertNotNull(noArgs);
+
+        RegisterRequest allArgs = new RegisterRequest(
+                "user",
+                "user@test.com",
+                "password123",
+                "User",
+                "9876543210"
+        );
+
+        assertEquals("user", allArgs.getUsername());
+        assertEquals("user@test.com", allArgs.getEmail());
+        assertEquals("password123", allArgs.getPassword());
+        assertEquals("User", allArgs.getFullName());
+        assertEquals("9876543210", allArgs.getPhoneNumber());
+    }
+
 }

@@ -94,4 +94,73 @@ class UpdateUserRequestTest {
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
         assertTrue(violations.isEmpty());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        UpdateUserRequest r1 = UpdateUserRequest.builder()
+                .email("user@example.com")
+                .fullName("John Doe")
+                .phoneNumber("9876543210")
+                .password("password123")
+                .build();
+
+        UpdateUserRequest r2 = UpdateUserRequest.builder()
+                .email("user@example.com")
+                .fullName("John Doe")
+                .phoneNumber("9876543210")
+                .password("password123")
+                .build();
+
+        UpdateUserRequest r3 = UpdateUserRequest.builder()
+                .email("other@example.com")
+                .fullName("Other User")
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        UpdateUserRequest request = UpdateUserRequest.builder()
+                .email("user@example.com")
+                .build();
+
+        assertNotEquals(request, null);
+        assertNotEquals(request, "not-an-update-user-request");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        UpdateUserRequest request = UpdateUserRequest.builder()
+                .email("user@example.com")
+                .fullName("John Doe")
+                .build();
+
+        String value = request.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("UpdateUserRequest"));
+        assertTrue(value.contains("user@example.com"));
+    }
+
+    @Test
+    void constructors_shouldCreateObjectsSuccessfully() {
+        UpdateUserRequest noArgs = new UpdateUserRequest();
+        assertNotNull(noArgs);
+
+        UpdateUserRequest allArgs = new UpdateUserRequest(
+                "user@example.com",
+                "John Doe",
+                "9876543210",
+                "password123"
+        );
+
+        assertEquals("user@example.com", allArgs.getEmail());
+        assertEquals("John Doe", allArgs.getFullName());
+        assertEquals("9876543210", allArgs.getPhoneNumber());
+        assertEquals("password123", allArgs.getPassword());
+    }
+
+
 }

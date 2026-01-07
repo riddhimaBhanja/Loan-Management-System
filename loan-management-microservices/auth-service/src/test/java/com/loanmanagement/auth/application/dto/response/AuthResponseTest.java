@@ -75,4 +75,61 @@ class AuthResponseTest {
         assertEquals(1800L, response.getExpiresIn());
         assertEquals(user, response.getUser());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        UserResponse user = UserResponse.builder()
+                .id(1L)
+                .username("john")
+                .email("john@test.com")
+                .build();
+
+        AuthResponse r1 = AuthResponse.builder()
+                .accessToken("access")
+                .refreshToken("refresh")
+                .tokenType("Bearer")
+                .expiresIn(3600L)
+                .user(user)
+                .build();
+
+        AuthResponse r2 = AuthResponse.builder()
+                .accessToken("access")
+                .refreshToken("refresh")
+                .tokenType("Bearer")
+                .expiresIn(3600L)
+                .user(user)
+                .build();
+
+        AuthResponse r3 = AuthResponse.builder()
+                .accessToken("different")
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        AuthResponse response = AuthResponse.builder()
+                .accessToken("access")
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-auth-response");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        AuthResponse response = AuthResponse.builder()
+                .accessToken("access")
+                .refreshToken("refresh")
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("AuthResponse"));
+        assertTrue(value.contains("access"));
+    }
+
 }

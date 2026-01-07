@@ -68,6 +68,7 @@ class UserResponseTest {
                 updatedAt
         );
 
+
         assertEquals(2L, response.getId());
         assertEquals("admin_user", response.getUsername());
         assertEquals("admin@example.com", response.getEmail());
@@ -78,4 +79,77 @@ class UserResponseTest {
         assertEquals(createdAt, response.getCreatedAt());
         assertEquals(updatedAt, response.getUpdatedAt());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+        Set<RoleType> roles = Set.of(RoleType.CUSTOMER);
+
+        UserResponse r1 = UserResponse.builder()
+                .id(1L)
+                .username("user")
+                .email("user@test.com")
+                .fullName("User One")
+                .phoneNumber("9876543210")
+                .roles(roles)
+                .isActive(true)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        UserResponse r2 = UserResponse.builder()
+                .id(1L)
+                .username("user")
+                .email("user@test.com")
+                .fullName("User One")
+                .phoneNumber("9876543210")
+                .roles(roles)
+                .isActive(true)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        UserResponse r3 = UserResponse.builder()
+                .id(2L)
+                .username("other")
+                .email("other@test.com")
+                .fullName("Other User")
+                .phoneNumber("9999999999")
+                .roles(Set.of(RoleType.ADMIN))
+                .isActive(false)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        UserResponse response = UserResponse.builder()
+                .id(1L)
+                .username("user")
+                .email("user@test.com")
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "string");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndKeyFields() {
+        UserResponse response = UserResponse.builder()
+                .id(1L)
+                .username("user")
+                .email("user@test.com")
+                .fullName("User One")
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("UserResponse"));
+        assertTrue(value.contains("user"));
+        assertTrue(value.contains("user@test.com"));
+    }
+
 }

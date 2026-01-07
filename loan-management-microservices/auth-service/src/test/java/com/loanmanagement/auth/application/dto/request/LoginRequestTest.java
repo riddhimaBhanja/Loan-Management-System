@@ -59,4 +59,62 @@ class LoginRequestTest {
 
         assertThat(violations).isNotEmpty();
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LoginRequest r1 = LoginRequest.builder()
+                .username("user")
+                .password("pass")
+                .build();
+
+        LoginRequest r2 = LoginRequest.builder()
+                .username("user")
+                .password("pass")
+                .build();
+
+        LoginRequest r3 = LoginRequest.builder()
+                .username("other")
+                .password("pass")
+                .build();
+
+        assertThat(r1).isEqualTo(r2);
+        assertThat(r1.hashCode()).isEqualTo(r2.hashCode());
+        assertThat(r1).isNotEqualTo(r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        LoginRequest request = LoginRequest.builder()
+                .username("user")
+                .password("pass")
+                .build();
+
+        assertThat(request).isNotEqualTo(null);
+        assertThat(request).isNotEqualTo("not-login-request");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        LoginRequest request = LoginRequest.builder()
+                .username("user")
+                .password("pass")
+                .build();
+
+        String value = request.toString();
+
+        assertThat(value).isNotNull();
+        assertThat(value).contains("LoginRequest");
+        assertThat(value).contains("user");
+    }
+
+    @Test
+    void constructors_shouldCreateObjectsSuccessfully() {
+        LoginRequest noArgs = new LoginRequest();
+        assertThat(noArgs).isNotNull();
+
+        LoginRequest allArgs = new LoginRequest("user", "pass");
+
+        assertThat(allArgs.getUsername()).isEqualTo("user");
+        assertThat(allArgs.getPassword()).isEqualTo("pass");
+    }
+
 }
