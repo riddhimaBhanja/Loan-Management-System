@@ -51,6 +51,11 @@ public class SecurityConfig {
                         // Allow all notification endpoints (internal service)
                         .requestMatchers("/api/notifications/**").permitAll()
 
+                        // Swagger/OpenAPI endpoints
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         // All other endpoints
                         .anyRequest().permitAll()
                 );
