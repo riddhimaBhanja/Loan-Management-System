@@ -7,15 +7,26 @@
 
 The **Loan Management System** is an enterprise-grade, full-stack application built using microservices architecture. It provides end-to-end loan lifecycle management from application submission to repayment tracking.
 
-### Key Capabilities
-- **Loan Application Management**: Submit, track, and manage loan applications
-- **Multi-Level Approval Workflow**: Configurable approval hierarchies with risk assessment
-- **EMI Schedule Generation**: Automated payment schedule calculation and tracking
-- **Document Management**: Secure upload, storage, and verification of loan documents
-- **Real-Time Notifications**: Email/SMS alerts for application updates and payment reminders
-- **Analytics & Reporting**: Comprehensive dashboards and business intelligence
-- **Role-Based Access Control**: Granular permissions for different user types
-- **Audit Trail**: Complete tracking of all system activities
+
+
+---
+
+## Key Capabilities
+
+| Capability                        | Description                                                            |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| **Loan Application Management**   | Submit, track, and manage loan applications throughout their lifecycle |
+| **Multi-Level Approval Workflow** | Configurable approval hierarchies with integrated risk assessment      |
+| **EMI Schedule Generation**       | Automated EMI calculation, schedule generation, and repayment tracking |
+| **Document Management**           | Secure document upload, storage, and verification                      |
+| **Real-Time Notifications**       | Email and SMS alerts for application updates and EMI reminders         |
+| **Analytics & Reporting**         | Comprehensive dashboards and business intelligence reports             |
+| **Role-Based Access Control**     | Fine-grained permissions for Admin, Loan Officer, and Customer roles   |
+| **Audit Trail**                   | Complete tracking and logging of all system activities                 |
+
+---
+
+
 
 ### Project Status
 - **Version**: 1.0.0
