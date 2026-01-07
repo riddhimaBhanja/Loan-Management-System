@@ -37,6 +37,11 @@ public class SecurityConfig {
                         // Actuator endpoints
                         .requestMatchers("/actuator/**").permitAll()
 
+                        // Swagger/OpenAPI endpoints
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         // All report and dashboard endpoints require authentication
                         // Authorization is handled by @PreAuthorize annotations in controllers
                         .requestMatchers("/api/reports/**").authenticated()
