@@ -54,6 +54,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Springdoc OpenAPI for Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <!-- Eureka Client for Service Discovery (version managed by Spring Cloud BOM) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
