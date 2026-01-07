@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: loan-management-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: loan_management_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - loan-management-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./loan-management-backend
+      dockerfile: Dockerfile
+    container_name: loan-management-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/loan_management_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: loanapp
+      SPRING_DATASOURCE_PASSWORD: loanpass123
+      JWT_SECRET: YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - loan-management-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ./loan-management-frontend
+      dockerfile: Dockerfile
+    container_name: loan-management-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - loan-management-network
+    environment:
+      API_URL: http://backend:8080/api
+
+networks:
+  loan-management-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
