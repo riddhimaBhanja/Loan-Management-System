@@ -42,7 +42,9 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 `
 ![1000275924](https://github.com/user-attachments/assets/11909046-1a22-4ec2-a88c-60e210afd958)
 
-```
+`
+---
+
 
 ### Microservices Overview
 
