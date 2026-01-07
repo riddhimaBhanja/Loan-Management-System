@@ -13,6 +13,55 @@ spring:
           lower-case-service-id: true
 
       routes:
+        # OpenAPI Documentation Routes (no JWT filter)
+        - id: auth-service-openapi
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
+        - id: loan-application-service-openapi
+          uri: lb://LOAN-APPLICATION-SERVICE
+          predicates:
+            - Path=/loan-application/v3/api-docs
+          filters:
+            - RewritePath=/loan-application/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
+        - id: loan-approval-service-openapi
+          uri: lb://LOAN-APPROVAL-SERVICE
+          predicates:
+            - Path=/loan-approval/v3/api-docs
+          filters:
+            - RewritePath=/loan-approval/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
+        - id: emi-service-openapi
+          uri: lb://EMI-SERVICE
+          predicates:
+            - Path=/emi/v3/api-docs
+          filters:
+            - RewritePath=/emi/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
+        - id: notification-service-openapi
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notification/v3/api-docs
+          filters:
+            - RewritePath=/notification/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
+        - id: reporting-service-openapi
+          uri: lb://REPORTING-SERVICE
+          predicates:
+            - Path=/reporting/v3/api-docs
+          filters:
+            - RewritePath=/reporting/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
         # Auth Service Routes
         - id: auth-service
           uri: lb://AUTH-SERVICE
@@ -257,3 +306,24 @@ resilience4j:
         timeoutDuration: 25s
       loan-approval-service:
         timeoutDuration: 25s
+
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /auth/v3/api-docs
+      - name: Loan Application Service
+        url: /loan-application/v3/api-docs
+      - name: Loan Approval Service
+        url: /loan-approval/v3/api-docs
+      - name: EMI Service
+        url: /emi/v3/api-docs
+      - name: Notification Service
+        url: /notification/v3/api-docs
+      - name: Reporting Service
+        url: /reporting/v3/api-docs

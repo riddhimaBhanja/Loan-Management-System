@@ -32,7 +32,18 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             "/api/health",  // Health check endpoints
             "/api/loan-types",  // Public loan type information
             "/actuator/health",
-            "/actuator/info"
+            "/actuator/info",
+            // Swagger/OpenAPI documentation endpoints
+            "/v3/api-docs",
+            "/auth/v3/api-docs",
+            "/loan-application/v3/api-docs",
+            "/loan-approval/v3/api-docs",
+            "/emi/v3/api-docs",
+            "/notification/v3/api-docs",
+            "/reporting/v3/api-docs",
+            "/swagger-ui.html",
+            "/swagger-ui",
+            "/webjars"
     );
 
     public JwtAuthenticationFilter() {
