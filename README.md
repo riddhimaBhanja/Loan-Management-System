@@ -1,23 +1,5 @@
 # Loan Management System - Complete Documentation
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [System Architecture](#system-architecture)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Security Implementation](#security-implementation)
-- [User Roles & Permissions](#user-roles--permissions)
-- [Features](#features)
-- [Testing](#testing)
-- [Development Guidelines](#development-guidelines)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 
 ---
 
