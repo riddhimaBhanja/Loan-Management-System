@@ -5,6 +5,11 @@ import com.loanmanagement.common.dto.GenerateEmiRequest;
 import com.loanmanagement.emi.application.dto.response.EmiScheduleResponse;
 import com.loanmanagement.emi.application.dto.response.EmiSummaryResponse;
 import com.loanmanagement.emi.domain.service.EmiScheduleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +26,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/emis")
+@Tag(name = "EMI Schedule Management", description = "APIs for managing EMI schedules, payments, and tracking")
+@SecurityRequirement(name = "Bearer Authentication")
 public class EmiScheduleController {
 
     private static final Logger logger = LoggerFactory.getLogger(EmiScheduleController.class);
@@ -34,6 +41,16 @@ public class EmiScheduleController {
      */
     @PostMapping("/generate")
     @PreAuthorize("hasAnyRole('LOAN_OFFICER', 'ADMIN')")
+    @Operation(
+            summary = "Generate EMI schedule",
+            description = "Generates an EMI schedule for a disbursed loan with all installments calculated"
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "EMI schedule generated successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
     public ResponseEntity<List<EmiScheduleResponse>> generateEmiSchedule(
             @Valid @RequestBody GenerateEmiRequest request) {
         logger.info("Received request to generate EMI schedule for loan ID: {}", request.getLoanId());
@@ -48,7 +65,16 @@ public class EmiScheduleController {
      */
     @GetMapping("/loan/{loanId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'LOAN_OFFICER', 'ADMIN')")
-    public ResponseEntity<ApiResponse> getEmiSchedule(@PathVariable Long loanId) {
+    @Operation(
+            summary = "Get EMI schedule by loan ID",
+            description = "Retrieves complete EMI schedule for a specific loan"
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "EMI schedule retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Loan not found")
+    })
+    public ResponseEntity<ApiResponse> getEmiSchedule(
+            @Parameter(description = "Loan ID", required = true) @PathVariable Long loanId) {
         logger.info("Fetching EMI schedule for loan ID: {}", loanId);
 
         List<EmiScheduleResponse> responses = emiScheduleService.getEmiSchedule(loanId);

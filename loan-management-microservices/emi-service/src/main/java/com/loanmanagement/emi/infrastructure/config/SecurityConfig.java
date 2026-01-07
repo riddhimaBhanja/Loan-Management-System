@@ -35,6 +35,11 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/internal/**").permitAll()  // Internal APIs for inter-service calls
 
+                        // Swagger/OpenAPI endpoints
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
