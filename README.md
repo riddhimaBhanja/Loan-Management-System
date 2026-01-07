@@ -89,6 +89,10 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 | **Reporting Service** | 8086 | reporting_db | Analytics, dashboards, business intelligence |
 
 ---
+## Auth and User service JACOCO Report
+
+![jacoco_auth-service](https://github.com/user-attachments/assets/659cf4eb-1e19-447b-9cdd-f2a120b94bcc)
+
 
 ## Technology Stack
 
