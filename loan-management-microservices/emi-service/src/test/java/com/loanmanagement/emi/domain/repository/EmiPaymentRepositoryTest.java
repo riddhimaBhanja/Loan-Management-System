@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@org.springframework.test.context.ActiveProfiles("test")
 class EmiPaymentRepositoryTest {
 
     @Autowired
@@ -141,7 +142,7 @@ class EmiPaymentRepositoryTest {
                 emiPaymentRepository.getTotalPaymentsForLoan(7L);
 
         assertTrue(total.isPresent());
-        assertEquals(BigDecimal.valueOf(3000), total.get());
+        assertEquals(0, BigDecimal.valueOf(3000).compareTo(total.get()));
     }
 
     @Test
@@ -195,6 +196,6 @@ class EmiPaymentRepositoryTest {
                 emiPaymentRepository.getTotalPaidForEmi(110L);
 
         assertTrue(total.isPresent());
-        assertEquals(BigDecimal.valueOf(2000), total.get());
+        assertEquals(0, BigDecimal.valueOf(2000).compareTo(total.get()));
     }
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@org.springframework.test.context.ActiveProfiles("test")
 class EmiScheduleRepositoryTest {
 
     @Autowired
@@ -148,7 +149,7 @@ class EmiScheduleRepositoryTest {
                 emiScheduleRepository.getTotalOutstandingAmount(10L);
 
         assertTrue(total.isPresent());
-        assertEquals(BigDecimal.valueOf(2000), total.get());
+        assertEquals(0, BigDecimal.valueOf(2000).compareTo(total.get()));
     }
 
     @Test

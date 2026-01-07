@@ -51,7 +51,7 @@ class EmiScheduleServiceImplTest {
                 .customerId(10L)
                 .emiNumber(1)
                 .emiAmount(new BigDecimal("5000"))
-                .dueDate(LocalDate.now().minusDays(5))
+                .dueDate(LocalDate.now().plusDays(5))
                 .status(EmiStatus.PENDING)
                 .build();
 

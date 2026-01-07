@@ -27,6 +27,11 @@ eureka:
   client:
     enabled: false
 
+# JWT Configuration for tests
+jwt:
+  secret: testSecretKeyForJWTTokenGenerationAndValidationInTestEnvironment123456789
+  expiration: 3600000
+
 logging:
   level:
     root: INFO

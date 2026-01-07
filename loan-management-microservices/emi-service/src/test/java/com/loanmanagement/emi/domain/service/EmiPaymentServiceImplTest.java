@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class EmiPaymentServiceImplTest {
@@ -89,8 +90,7 @@ class EmiPaymentServiceImplTest {
         when(emiScheduleRepository.findById(1L)).thenReturn(Optional.of(emiSchedule));
         when(emiPaymentRepository.save(any())).thenReturn(payment);
         when(emiPaymentMapper.toResponse(payment)).thenReturn(new EmiPaymentResponse());
-        when(userServiceClient.getUserIdByUsername(any())).thenReturn(1L);
-        when(userServiceClient.getUserName(1L)).thenReturn("Test User");
+        lenient().when(userServiceClient.getUserIdByUsername(any())).thenReturn(1L);
 
         EmiPaymentResponse response = service.recordPayment(request);
 
@@ -153,10 +153,13 @@ class EmiPaymentServiceImplTest {
 
     @Test
     void getPaymentHistory_success() {
+        EmiPaymentResponse responseWithEmiScheduleId = new EmiPaymentResponse();
+        responseWithEmiScheduleId.setEmiScheduleId(1L);
+
         when(emiPaymentRepository.findByLoanIdOrderByPaymentDateDesc(100L))
                 .thenReturn(List.of(payment));
         when(emiPaymentMapper.toResponseList(any()))
-                .thenReturn(List.of(new EmiPaymentResponse()));
+                .thenReturn(List.of(responseWithEmiScheduleId));
         when(emiScheduleRepository.findById(1L))
                 .thenReturn(Optional.of(emiSchedule));
 
@@ -191,10 +194,13 @@ class EmiPaymentServiceImplTest {
 
     @Test
     void getPaymentByTransactionReference_success() {
+        EmiPaymentResponse responseWithEmiScheduleId = new EmiPaymentResponse();
+        responseWithEmiScheduleId.setEmiScheduleId(1L);
+
         when(emiPaymentRepository.findByTransactionReference("TXN123"))
                 .thenReturn(Optional.of(payment));
         when(emiPaymentMapper.toResponse(payment))
-                .thenReturn(new EmiPaymentResponse());
+                .thenReturn(responseWithEmiScheduleId);
         when(emiScheduleRepository.findById(1L))
                 .thenReturn(Optional.of(emiSchedule));
 
