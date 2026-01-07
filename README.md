@@ -60,6 +60,10 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 | **Reporting Service** | 8086 | reporting_db | Analytics, dashboards, business intelligence |
 
 ---
+## Docker Containers running
+
+![DockerRunning](https://github.com/user-attachments/assets/637bbb03-5339-4e6b-bd1f-2cb179e0360b)
+
 ## Auth and User service JACOCO Report
 
 ![jacoco_auth-service](https://github.com/user-attachments/assets/659cf4eb-1e19-447b-9cdd-f2a120b94bcc)
