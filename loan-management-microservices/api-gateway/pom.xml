@@ -52,6 +52,13 @@
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
 
+        <!-- Springdoc OpenAPI for Swagger UI (WebFlux/Gateway) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <!-- JWT for token validation (versions managed by parent) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
