@@ -36,6 +36,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/health/**").permitAll() // Health check endpoints
                         .requestMatchers("/api/loan-types/**").permitAll() // Public loan type info
                         .requestMatchers("/api/internal/**").permitAll() // Internal service-to-service calls
+
+                        // Swagger/OpenAPI endpoints
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

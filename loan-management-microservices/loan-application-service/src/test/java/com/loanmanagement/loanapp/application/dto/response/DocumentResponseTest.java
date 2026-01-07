@@ -92,4 +92,94 @@ class DocumentResponseTest {
         assertEquals(now, response.getCreatedAt());
         assertEquals(now, response.getUpdatedAt());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+
+        DocumentResponse r1 = DocumentResponse.builder()
+                .id(1L)
+                .loanId(100L)
+                .documentType(DocumentType.ID_PROOF)
+                .fileName("doc.pdf")
+                .fileSize(2048L)
+                .uploadedAt(now)
+                .build();
+
+        DocumentResponse r2 = DocumentResponse.builder()
+                .id(1L)
+                .loanId(100L)
+                .documentType(DocumentType.ID_PROOF)
+                .fileName("doc.pdf")
+                .fileSize(2048L)
+                .uploadedAt(now)
+                .build();
+
+        DocumentResponse r3 = DocumentResponse.builder()
+                .id(2L)
+                .loanId(200L)
+                .documentType(DocumentType.INCOME_PROOF)
+                .fileName("other.pdf")
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+    }
+
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        DocumentResponse response = DocumentResponse.builder()
+                .id(1L)
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-a-document-response");
+    }
+
+    @Test
+    void toString_shouldContainClassNameAndKeyFields() {
+        DocumentResponse response = DocumentResponse.builder()
+                .id(1L)
+                .fileName("doc.pdf")
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("DocumentResponse"));
+        assertTrue(value.contains("doc.pdf"));
+    }
+    @Test
+    void settersAndCanEqual_shouldWorkCorrectly() {
+        DocumentResponse response = new DocumentResponse();
+
+        response.setId(1L);
+        response.setLoanId(100L);
+        response.setDocumentType(DocumentType.ID_PROOF);
+        response.setFileName("file.pdf");
+        response.setOriginalFileName("original.pdf");
+        response.setFilePath("/path/file.pdf");
+        response.setFileSize(1024L);
+        response.setContentType("application/pdf");
+        response.setUploadedAt(LocalDateTime.now());
+        response.setUploadedBy(10L);
+        response.setCreatedAt(LocalDateTime.now());
+        response.setUpdatedAt(LocalDateTime.now());
+
+        // getters invoked implicitly via assertions
+        assertEquals(1L, response.getId());
+        assertEquals(100L, response.getLoanId());
+        assertEquals(DocumentType.ID_PROOF, response.getDocumentType());
+        assertEquals("file.pdf", response.getFileName());
+        assertEquals("original.pdf", response.getOriginalFileName());
+        assertEquals("/path/file.pdf", response.getFilePath());
+        assertEquals(1024L, response.getFileSize());
+        assertEquals("application/pdf", response.getContentType());
+        assertEquals(10L, response.getUploadedBy());
+
+        // canEqual path
+        assertTrue(response.canEqual(new DocumentResponse()));
+    }
+
+
 }

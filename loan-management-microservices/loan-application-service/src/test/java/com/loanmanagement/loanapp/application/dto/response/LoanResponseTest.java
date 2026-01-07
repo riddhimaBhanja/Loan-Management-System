@@ -109,4 +109,171 @@ class LoanResponseTest {
         assertEquals(now, response.getCreatedAt());
         assertEquals(now, response.getUpdatedAt());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LoanResponse r1 = LoanResponse.builder()
+                .id(1L)
+                .customerId(100L)
+                .loanTypeId(10L)
+                .amount(BigDecimal.valueOf(500000))
+                .status(LoanStatus.PENDING)
+                .appliedDate(now)
+                .build();
+
+        LoanResponse r2 = LoanResponse.builder()
+                .id(1L)
+                .customerId(100L)
+                .loanTypeId(10L)
+                .amount(BigDecimal.valueOf(500000))
+                .status(LoanStatus.PENDING)
+                .appliedDate(now)
+                .build();
+
+        LoanResponse r3 = LoanResponse.builder()
+                .id(2L)
+                .customerId(200L)
+                .status(LoanStatus.APPROVED)
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+
+        // canEqual path
+        assertTrue(r1.canEqual(r2));
+    }
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        LoanResponse response = LoanResponse.builder()
+                .id(1L)
+                .build();
+
+        assertNotEquals(response, null);
+        assertNotEquals(response, "not-a-loan-response");
+    }
+    @Test
+    void toString_shouldContainClassNameAndKeyFields() {
+        LoanResponse response = LoanResponse.builder()
+                .id(1L)
+                .applicationNumber("LN-TEST-001")
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("LoanResponse"));
+        assertTrue(value.contains("LN-TEST-001"));
+    }
+    @Test
+    void setters_shouldWorkCorrectly() {
+        LoanResponse response = new LoanResponse();
+
+        response.setId(1L);
+        response.setCustomerId(100L);
+        response.setCustomerName("John Doe");
+        response.setLoanTypeId(10L);
+        response.setLoanTypeName("Home Loan");
+        response.setLoanOfficerId(5L);
+        response.setApplicationNumber("LN-123");
+        response.setAmount(BigDecimal.valueOf(500000));
+        response.setRequestedAmount(BigDecimal.valueOf(500000));
+        response.setTenureMonths(120);
+        response.setEmploymentStatus(EmploymentStatus.SALARIED);
+        response.setMonthlyIncome(BigDecimal.valueOf(60000));
+        response.setPurpose("Home purchase");
+        response.setStatus(LoanStatus.PENDING);
+        response.setAppliedDate(LocalDateTime.now());
+        response.setAppliedAt(LocalDateTime.now());
+        response.setCreatedAt(LocalDateTime.now());
+        response.setUpdatedAt(LocalDateTime.now());
+
+        assertEquals("John Doe", response.getCustomerName());
+        assertEquals("LN-123", response.getApplicationNumber());
+        assertEquals(120, response.getTenureMonths());
+    }
+    @Test
+    void canEqual_shouldReturnFalseForDifferentClass() {
+        LoanResponse response = LoanResponse.builder()
+                .id(1L)
+                .build();
+
+        assertFalse(response.canEqual("not-loan-response"));
+    }
+
+    @Test
+    void equals_shouldReturnFalseWhenOneFieldDiffers() {
+        LoanResponse r1 = LoanResponse.builder()
+                .id(1L)
+                .customerId(100L)
+                .build();
+
+        LoanResponse r2 = LoanResponse.builder()
+                .id(1L)
+                .customerId(200L)
+                .build();
+
+        assertNotEquals(r1, r2);
+    }
+
+    @Test
+    void toString_shouldIncludeMultipleFields() {
+        LoanResponse response = LoanResponse.builder()
+                .id(10L)
+                .customerName("Alice")
+                .loanTypeName("Education Loan")
+                .status(LoanStatus.APPROVED)
+                .build();
+
+        String value = response.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("LoanResponse"));
+        assertTrue(value.contains("Alice"));
+        assertTrue(value.contains("Education Loan"));
+        assertTrue(value.contains("APPROVED"));
+    }
+
+    @Test
+    void builder_shouldAllowOnlyAliasFields() {
+        LoanResponse response = LoanResponse.builder()
+                .requestedAmount(BigDecimal.valueOf(123456))
+                .appliedAt(LocalDateTime.now())
+                .build();
+
+        assertEquals(BigDecimal.valueOf(123456), response.getRequestedAmount());
+        assertNotNull(response.getAppliedAt());
+    }
+
+    @Test
+    void equals_shouldHandleNullAliasFieldsCorrectly() {
+        LoanResponse r1 = LoanResponse.builder()
+                .id(1L)
+                .appliedDate(null)
+                .appliedAt(LocalDateTime.now())
+                .build();
+
+        LoanResponse r2 = LoanResponse.builder()
+                .id(1L)
+                .appliedDate(null)
+                .appliedAt(LocalDateTime.now())
+                .build();
+
+        assertEquals(r1, r2);
+    }
+
+    @Test
+    void hashCode_shouldBeStableForSameObject() {
+        LoanResponse response = LoanResponse.builder()
+                .id(99L)
+                .build();
+
+        int hash1 = response.hashCode();
+        int hash2 = response.hashCode();
+
+        assertEquals(hash1, hash2);
+    }
+
+
 }

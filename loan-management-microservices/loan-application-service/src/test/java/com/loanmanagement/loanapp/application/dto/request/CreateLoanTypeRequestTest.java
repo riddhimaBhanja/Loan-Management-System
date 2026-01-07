@@ -127,4 +127,87 @@ class CreateLoanTypeRequestTest {
         Set<ConstraintViolation<CreateLoanTypeRequest>> violations = validator.validate(request);
         assertTrue(violations.isEmpty());
     }
+    @Test
+    void equalsAndHashCode_shouldWorkCorrectly() {
+        CreateLoanTypeRequest r1 = CreateLoanTypeRequest.builder()
+                .name("Home Loan")
+                .minAmount(BigDecimal.valueOf(100000))
+                .maxAmount(BigDecimal.valueOf(500000))
+                .minTenureMonths(12)
+                .maxTenureMonths(240)
+                .interestRate(BigDecimal.valueOf(8.5))
+                .build();
+
+        CreateLoanTypeRequest r2 = CreateLoanTypeRequest.builder()
+                .name("Home Loan")
+                .minAmount(BigDecimal.valueOf(100000))
+                .maxAmount(BigDecimal.valueOf(500000))
+                .minTenureMonths(12)
+                .maxTenureMonths(240)
+                .interestRate(BigDecimal.valueOf(8.5))
+                .build();
+
+        CreateLoanTypeRequest r3 = CreateLoanTypeRequest.builder()
+                .name("Car Loan")
+                .minAmount(BigDecimal.valueOf(50000))
+                .maxAmount(BigDecimal.valueOf(300000))
+                .minTenureMonths(6)
+                .maxTenureMonths(60)
+                .interestRate(BigDecimal.valueOf(9))
+                .build();
+
+        assertEquals(r1, r2);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertNotEquals(r1, r3);
+        assertTrue(r1.canEqual(r2));
+    }
+    @Test
+    void equals_shouldReturnFalseForNullAndDifferentType() {
+        CreateLoanTypeRequest request = CreateLoanTypeRequest.builder()
+                .name("Test Loan")
+                .minAmount(BigDecimal.valueOf(1000))
+                .maxAmount(BigDecimal.valueOf(5000))
+                .minTenureMonths(6)
+                .maxTenureMonths(12)
+                .interestRate(BigDecimal.valueOf(5))
+                .build();
+
+        assertNotEquals(request, null);
+        assertNotEquals(request, "not-a-loan-type-request");
+    }
+    @Test
+    void toString_shouldContainClassNameAndFields() {
+        CreateLoanTypeRequest request = CreateLoanTypeRequest.builder()
+                .name("Home Loan")
+                .interestRate(BigDecimal.valueOf(8.5))
+                .build();
+
+        String value = request.toString();
+
+        assertNotNull(value);
+        assertTrue(value.contains("CreateLoanTypeRequest"));
+        assertTrue(value.contains("Home Loan"));
+    }
+    @Test
+    void settersAndDefaults_shouldWorkCorrectly() {
+        CreateLoanTypeRequest request = new CreateLoanTypeRequest();
+
+        request.setName("Education Loan");
+        request.setDescription("Student loan");
+        request.setMinAmount(BigDecimal.valueOf(50000));
+        request.setMaxAmount(BigDecimal.valueOf(2000000));
+        request.setMinTenureMonths(12);
+        request.setMaxTenureMonths(120);
+        request.setInterestRate(BigDecimal.valueOf(7.5));
+        request.setLateFeePercentage(BigDecimal.valueOf(3));
+        request.setGracePeriodDays(5);
+        request.setIsActive(false);
+
+        assertEquals("Education Loan", request.getName());
+        assertEquals(BigDecimal.valueOf(3), request.getLateFeePercentage());
+        assertEquals(5, request.getGracePeriodDays());
+        assertFalse(request.getIsActive());
+    }
+
+
 }
