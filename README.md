@@ -66,6 +66,11 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 
 ## Loan Application Service JACOCO Report
 
+![jacoco_loan-application-service](https://github.com/user-attachments/assets/3e45b9c2-b0dc-480e-b70e-2c3321c470b2)
+
+
+
+
 ## Technology Stack
 
 ### Backend Technologies
