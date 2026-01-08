@@ -1,5 +1,416 @@
-# Loan Management System - Docker Compose Configuration
-# This file references the microservices architecture in the loan-management-microservices directory
+# Loan Management System - Docker Compose Wrapper
+# This file provides a convenient way to run the microservices from the root directory
+# The actual service definitions are in loan-management-microservices/docker-compose.yml
 
-include:
-  - loan-management-microservices/docker-compose.yml
+services:
+  # ========== DATABASES ==========
+
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_DATABASE: auth_user
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-auth-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-loan-application:
+    image: mysql:8.0
+    container_name: mysql-loan-application
+    environment:
+      MYSQL_DATABASE: loan_application_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-loan-application-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-loan-approval:
+    image: mysql:8.0
+    container_name: mysql-loan-approval
+    environment:
+      MYSQL_DATABASE: loan_approval_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql-loan-approval-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-emi:
+    image: mysql:8.0
+    container_name: mysql-emi
+    environment:
+      MYSQL_DATABASE: emi_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql-emi-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-notification:
+    image: mysql:8.0
+    container_name: mysql-notification
+    environment:
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql-notification-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-reporting:
+    image: mysql:8.0
+    container_name: mysql-reporting
+    environment:
+      MYSQL_DATABASE: reporting_db
+      MYSQL_USER: loanapp
+      MYSQL_PASSWORD: loanpass123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3312:3306"
+    volumes:
+      - mysql-reporting-data:/var/lib/mysql
+    networks:
+      - loan-microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== INFRASTRUCTURE SERVICES ==========
+
+  eureka-server:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./service-discovery/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  api-gateway:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ========== BUSINESS MICROSERVICES ==========
+
+  auth-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./auth-service/Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_user?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_EXPIRATION=86400000
+      - JWT_REFRESH_EXPIRATION=604800000
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  loan-application-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./loan-application-service/Dockerfile
+    container_name: loan-application-service
+    ports:
+      - "8082:8082"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan-application:3306/loan_application_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+    volumes:
+      - loan-documents-uploads:/app/uploads
+    depends_on:
+      mysql-loan-application:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  loan-approval-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./loan-approval-service/Dockerfile
+    container_name: loan-approval-service
+    ports:
+      - "8083:8083"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan-approval:3306/loan_approval_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+    depends_on:
+      mysql-loan-approval:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      loan-application-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  emi-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./emi-service/Dockerfile
+    container_name: emi-service
+    ports:
+      - "8084:8084"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-emi:3306/emi_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+    depends_on:
+      mysql-emi:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      loan-approval-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  reporting-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./reporting-service/Dockerfile
+    container_name: reporting-service
+    ports:
+      - "8085:8085"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-reporting:3306/reporting_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+    depends_on:
+      mysql-reporting:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      loan-application-service:
+        condition: service_healthy
+      loan-approval-service:
+        condition: service_healthy
+      emi-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  notification-service:
+    build:
+      context: ./loan-management-microservices
+      dockerfile: ./notification-service/Dockerfile
+    container_name: notification-service
+    ports:
+      - "8086:8086"
+    networks:
+      - loan-microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-notification:3306/notification_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=loanapp
+      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      # Email configuration - using .env file values
+      - SPRING_MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - SPRING_MAIL_PORT=${MAIL_PORT:-587}
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_FROM=${MAIL_USERNAME}
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ========== FRONTEND ==========
+
+  frontend:
+    build:
+      context: ./loan-management-microservices/loan-management-frontend
+      dockerfile: Dockerfile
+    container_name: loan-management-frontend
+    ports:
+      - "80:80"
+    networks:
+      - loan-microservices-network
+    environment:
+      - API_URL=http://api-gateway:8080/api
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# ========== NETWORKS ==========
+networks:
+  loan-microservices-network:
+    driver: bridge
+
+# ========== VOLUMES ==========
+volumes:
+  mysql-auth-data:
+    driver: local
+  mysql-loan-application-data:
+    driver: local
+  mysql-loan-approval-data:
+    driver: local
+  mysql-emi-data:
+    driver: local
+  mysql-notification-data:
+    driver: local
+  mysql-reporting-data:
+    driver: local
+  loan-documents-uploads:
+    driver: local
