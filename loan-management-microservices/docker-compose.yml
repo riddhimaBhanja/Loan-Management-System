@@ -6,9 +6,9 @@ services:
     container_name: mysql-auth
     environment:
       MYSQL_DATABASE: auth_user
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
@@ -26,9 +26,9 @@ services:
     container_name: mysql-loan-application
     environment:
       MYSQL_DATABASE: loan_application_db
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3308:3306"
     volumes:
@@ -46,9 +46,9 @@ services:
     container_name: mysql-loan-approval
     environment:
       MYSQL_DATABASE: loan_approval_db
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3309:3306"
     volumes:
@@ -66,9 +66,9 @@ services:
     container_name: mysql-emi
     environment:
       MYSQL_DATABASE: emi_db
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3310:3306"
     volumes:
@@ -86,9 +86,9 @@ services:
     container_name: mysql-notification
     environment:
       MYSQL_DATABASE: notification_db
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3311:3306"
     volumes:
@@ -106,9 +106,9 @@ services:
     container_name: mysql-reporting
     environment:
       MYSQL_DATABASE: reporting_db
-      MYSQL_USER: loanapp
-      MYSQL_PASSWORD: loanpass123
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ${MYSQL_USER:-loanapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3312:3306"
     volumes:
@@ -153,7 +153,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -178,10 +178,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_user?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=86400000
       - JWT_REFRESH_EXPIRATION=604800000
     depends_on:
@@ -208,10 +208,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan-application:3306/loan_application_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - loan-documents-uploads:/app/uploads
     depends_on:
@@ -240,10 +240,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan-approval:3306/loan_approval_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       mysql-loan-approval:
         condition: service_healthy
@@ -272,10 +272,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-emi:3306/emi_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       mysql-emi:
         condition: service_healthy
@@ -304,10 +304,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-reporting:3306/reporting_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       mysql-reporting:
         condition: service_healthy
@@ -340,10 +340,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-notification:3306/notification_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=loanapp
-      - SPRING_DATASOURCE_PASSWORD=loanpass123
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-loanapp}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JWT_SECRET=YourProductionSecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS512Algorithm
+      - JWT_SECRET=${JWT_SECRET}
       # Email configuration - using .env file values
       - SPRING_MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
       - SPRING_MAIL_PORT=${MAIL_PORT:-587}
