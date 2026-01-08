@@ -110,8 +110,7 @@ INSERT IGNORE INTO roles (id, name, description) VALUES
 -- OPTION 3: Use this test hash for LOCAL DEVELOPMENT ONLY
 -- Test password: DevTest@123456 (DO NOT use in production)
 -- Uncomment and use the line below ONLY for local testing:
--- SET @TEST_PASSWORD_HASH = '$2a$10$E8r9HqZp8K5qV3nI4Y5nTeW7x8P9L2mQ6vN5tR4wS8jK7bM3cD2eO';
---
+
 -- Current setting: PLACEHOLDER - Will cause authentication to fail
 SET @TEST_PASSWORD_HASH = 'REPLACE_WITH_BCRYPT_HASH_BEFORE_USE';
 
