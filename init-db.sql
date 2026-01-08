@@ -2,6 +2,12 @@
 -- Loan Management System - Complete Database Initialization Script
 -- This script creates schemas, tables, and comprehensive seed data
 -- ============================================================================
+--
+-- ⚠️  SECURITY WARNING - DEVELOPMENT/TESTING ONLY ⚠️
+-- This script contains hardcoded test credentials and should NEVER be used
+-- in production environments. All passwords must be changed before deployment.
+-- The bcrypt hashes in this file are for the test password: Password@123
+-- ============================================================================
 
 -- ============================================================================
 -- 1. CREATE DATABASES
@@ -74,14 +80,20 @@ INSERT IGNORE INTO roles (id, name, description) VALUES
 (2, 'LOAN_OFFICER', 'Loan officer who can review and approve loans'),
 (3, 'CUSTOMER', 'Customer who can apply for loans');
 
+-- Define constants for test data (Development/Testing only)
+SET @TEST_PASSWORD_HASH = '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6';
+SET @STATUS_APPLIED = 'APPLIED';
+SET @STATUS_PENDING = 'PENDING';
+SET @LABEL_TABLE = 'Table';
+
 -- Insert Users (password for all: Password@123)
--- Password hash for 'Password@123' using BCrypt: $2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6
+-- ⚠️  WARNING: Test credentials only - Change before production deployment
 INSERT IGNORE INTO users (id, username, email, password_hash, full_name, phone_number, is_active) VALUES
-(1, 'admin', 'admin@loanmanagement.com', '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6', 'System Administrator', '+1234567890', true),
-(2, 'officer1', 'officer1@loanmanagement.com', '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6', 'John Officer', '+1234567891', true),
-(3, 'customer1', 'customer1@example.com', '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6', 'Alice Johnson', '+1234567892', true),
-(4, 'customer2', 'customer2@example.com', '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6', 'Bob Smith', '+1234567893', true),
-(5, 'customer3', 'customer3@example.com', '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6', 'Carol Williams', '+1234567894', true);
+(1, 'admin', 'admin@loanmanagement.com', @TEST_PASSWORD_HASH, 'System Administrator', '+1234567890', true),
+(2, 'officer1', 'officer1@loanmanagement.com', @TEST_PASSWORD_HASH, 'John Officer', '+1234567891', true),
+(3, 'customer1', 'customer1@example.com', @TEST_PASSWORD_HASH, 'Alice Johnson', '+1234567892', true),
+(4, 'customer2', 'customer2@example.com', @TEST_PASSWORD_HASH, 'Bob Smith', '+1234567893', true),
+(5, 'customer3', 'customer3@example.com', @TEST_PASSWORD_HASH, 'Carol Williams', '+1234567894', true);
 
 -- Assign roles to users
 INSERT IGNORE INTO user_roles (user_id, role_id) VALUES
@@ -169,14 +181,14 @@ INSERT IGNORE INTO loan_types (id, name, description, min_amount, max_amount, mi
 INSERT IGNORE INTO loans (id, application_number, customer_id, loan_type_id, requested_amount, approved_amount, tenure_months, interest_rate, employment_type, monthly_income, purpose, status, applied_at, reviewed_at, approved_at, reviewed_by, remarks) VALUES
 -- Customer 1 (Alice Johnson - customer1) - ID 3
 (1, 'LN2025010001', 3, 1, 200000.00, 200000.00, 36, 12.00, 'SALARIED', 75000.00, 'Medical expenses', 'DISBURSED', '2025-01-01 10:00:00', '2025-01-02 14:00:00', '2025-01-02 15:00:00', 2, 'Approved - Good credit history'),
-(2, 'LN2025010002', 3, 3, 800000.00, NULL, 60, NULL, 'SALARIED', 75000.00, 'Purchase new car', 'APPLIED', '2025-01-05 09:30:00', NULL, NULL, NULL, NULL),
+(2, 'LN2025010002', 3, 3, 800000.00, NULL, 60, NULL, 'SALARIED', 75000.00, 'Purchase new car', @STATUS_APPLIED, '2025-01-05 09:30:00', NULL, NULL, NULL, NULL),
 
 -- Customer 2 (Bob Smith - customer2) - ID 4
 (3, 'LN2025010003', 4, 2, 5000000.00, 4500000.00, 240, 8.50, 'SELF_EMPLOYED', 150000.00, 'Home purchase', 'APPROVED', '2024-12-15 11:00:00', '2024-12-20 16:00:00', '2024-12-21 10:00:00', 2, 'Approved with reduced amount'),
 (4, 'LN2025010004', 4, 4, 500000.00, NULL, 48, NULL, 'SELF_EMPLOYED', 150000.00, 'MBA abroad', 'UNDER_REVIEW', '2025-01-06 14:00:00', '2025-01-07 10:00:00', NULL, 2, 'Under verification'),
 
 -- Customer 3 (Carol Williams - customer3) - ID 5
-(5, 'LN2025010005', 5, 5, 1000000.00, NULL, 60, NULL, 'BUSINESS_OWNER', 200000.00, 'Business expansion', 'APPLIED', '2025-01-07 16:00:00', NULL, NULL, NULL, NULL),
+(5, 'LN2025010005', 5, 5, 1000000.00, NULL, 60, NULL, 'BUSINESS_OWNER', 200000.00, 'Business expansion', @STATUS_APPLIED, '2025-01-07 16:00:00', NULL, NULL, NULL, NULL),
 (6, 'LN2025010006', 5, 1, 150000.00, NULL, 24, NULL, 'BUSINESS_OWNER', 200000.00, 'Wedding expenses', 'REJECTED', '2024-12-10 10:00:00', '2024-12-12 15:00:00', NULL, 2, 'Insufficient documentation');
 
 -- ============================================================================
@@ -259,10 +271,10 @@ INSERT IGNORE INTO emi_schedule (loan_id, emi_number, due_date, principal_amount
 -- EMI 2 (PAID)
 (1, 2, '2025-03-03', 4690.51, 1953.63, 6644.14, 190665.35, 'PAID', '2025-03-01 10:00:00', 'PAY2025030100001'),
 -- EMI 3 (PENDING - due soon)
-(1, 3, '2025-04-03', 4737.41, 1906.73, 6644.14, 185927.94, 'PENDING', NULL, NULL),
+(1, 3, '2025-04-03', 4737.41, 1906.73, 6644.14, 185927.94, @STATUS_PENDING, NULL, NULL),
 -- EMI 4 onwards (PENDING)
-(1, 4, '2025-05-03', 4784.86, 1859.28, 6644.14, 181143.08, 'PENDING', NULL, NULL),
-(1, 5, '2025-06-03', 4832.86, 1811.28, 6644.14, 176310.22, 'PENDING', NULL, NULL);
+(1, 4, '2025-05-03', 4784.86, 1859.28, 6644.14, 181143.08, @STATUS_PENDING, NULL, NULL),
+(1, 5, '2025-06-03', 4832.86, 1811.28, 6644.14, 176310.22, @STATUS_PENDING, NULL, NULL);
 
 -- Insert more EMIs for remaining months (simplified - add more if needed)
 INSERT IGNORE INTO emi_schedule (loan_id, emi_number, due_date, principal_amount, interest_amount, total_emi, principal_balance, status)
@@ -273,7 +285,7 @@ SELECT 1,
        1144.14,
        6644.14,
        200000.00 - ((n + 5) * 5500.00),
-       'PENDING'
+       @STATUS_PENDING
 FROM (
     SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30
 ) numbers
@@ -337,21 +349,21 @@ CREATE TABLE IF NOT EXISTS dashboard_cache (
 
 -- Verify data
 USE auth_user;
-SELECT 'AUTH SERVICE - Users' as 'Table';
+SELECT 'AUTH SERVICE - Users' as @LABEL_TABLE;
 SELECT u.id, u.username, u.email, u.full_name, r.name as role
 FROM users u
 JOIN user_roles ur ON u.id = ur.user_id
 JOIN roles r ON ur.role_id = r.id;
 
 USE loan_application;
-SELECT '\nLOAN APPLICATION SERVICE - Loan Types' as 'Table';
+SELECT '\nLOAN APPLICATION SERVICE - Loan Types' as @LABEL_TABLE;
 SELECT id, name, min_amount, max_amount, interest_rate FROM loan_types;
 
-SELECT '\nLOAN APPLICATION SERVICE - Loans' as 'Table';
+SELECT '\nLOAN APPLICATION SERVICE - Loans' as @LABEL_TABLE;
 SELECT id, application_number, customer_id, requested_amount, status, applied_at FROM loans;
 
 USE emi_service;
-SELECT '\nEMI SERVICE - EMI Schedule (First 5)' as 'Table';
+SELECT '\nEMI SERVICE - EMI Schedule (First 5)' as @LABEL_TABLE;
 SELECT loan_id, emi_number, due_date, total_emi, status, paid_at FROM emi_schedule WHERE loan_id = 1 LIMIT 5;
 
 -- ============================================================================

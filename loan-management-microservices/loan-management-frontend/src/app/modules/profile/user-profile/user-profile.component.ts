@@ -94,8 +94,9 @@ export class UserProfileComponent implements OnInit {
       this.profileForm.enable();
     } else {
       // Cancel editing - restore original values
-      if (this.currentUser()) {
-        this.populateForm(this.currentUser()!);
+      const user = this.currentUser();
+      if (user) {
+        this.populateForm(user);
       }
       this.profileForm.disable();
     }
