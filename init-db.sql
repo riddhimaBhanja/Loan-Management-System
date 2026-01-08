@@ -3,10 +3,22 @@
 -- This script creates schemas, tables, and comprehensive seed data
 -- ============================================================================
 --
--- ⚠️  SECURITY WARNING - DEVELOPMENT/TESTING ONLY ⚠️
--- This script contains hardcoded test credentials and should NEVER be used
--- in production environments. All passwords must be changed before deployment.
--- The bcrypt hashes in this file are for the test password: Password@123
+-- ⚠️  CRITICAL SECURITY WARNING - DEVELOPMENT/TESTING ONLY ⚠️
+--
+-- This script is ONLY for local development and testing environments.
+-- DO NOT use this script in production or any publicly accessible environment.
+--
+-- BEFORE USING THIS SCRIPT:
+-- 1. Replace the @TEST_PASSWORD_HASH value below with your own bcrypt hash
+-- 2. Generate secure bcrypt hashes using:
+--    - Online: https://bcrypt-generator.com/ (cost factor: 10 or higher)
+--    - Node.js: bcrypt.hash('your-password', 10)
+--    - Java: BCryptPasswordEncoder().encode('your-password')
+--    - Python: bcrypt.hashpw(b'your-password', bcrypt.gensalt())
+-- 3. Use strong, unique passwords for each user
+-- 4. Never commit real password hashes to version control
+--
+-- The default hash below is INTENTIONALLY INVALID and must be replaced.
 -- ============================================================================
 
 -- ============================================================================
@@ -80,14 +92,38 @@ INSERT IGNORE INTO roles (id, name, description) VALUES
 (2, 'LOAN_OFFICER', 'Loan officer who can review and approve loans'),
 (3, 'CUSTOMER', 'Customer who can apply for loans');
 
--- Define constants for test data (Development/Testing only)
-SET @TEST_PASSWORD_HASH = '$2a$10$rCN.1fXqXy.3k5X6k0bK3eP1BLQqP7Q8QP4J5a5YO5gP5Z7OB5Qa6';
+-- ============================================================================
+-- ⚠️  PASSWORD CONFIGURATION - MUST BE UPDATED BEFORE USE ⚠️
+-- ============================================================================
+-- Replace the placeholder below with your own bcrypt hashed password.
+--
+-- OPTION 1: Use environment-specific script
+-- For production, use a separate secure initialization script that reads
+-- passwords from environment variables or secure vault.
+--
+-- OPTION 2: Generate hash manually and replace below
+-- Example (Node.js with bcrypt):
+--   const bcrypt = require('bcrypt');
+--   const hash = await bcrypt.hash('YourSecurePassword123!', 10);
+--   console.log(hash);
+--
+-- OPTION 3: Use this test hash for LOCAL DEVELOPMENT ONLY
+-- Test password: DevTest@123456 (DO NOT use in production)
+-- Uncomment and use the line below ONLY for local testing:
+-- SET @TEST_PASSWORD_HASH = '$2a$10$E8r9HqZp8K5qV3nI4Y5nTeW7x8P9L2mQ6vN5tR4wS8jK7bM3cD2eO';
+--
+-- Current setting: PLACEHOLDER - Will cause authentication to fail
+SET @TEST_PASSWORD_HASH = 'REPLACE_WITH_BCRYPT_HASH_BEFORE_USE';
+
+-- Define constants for test data
 SET @STATUS_APPLIED = 'APPLIED';
 SET @STATUS_PENDING = 'PENDING';
 SET @LABEL_TABLE = 'Table';
+-- ============================================================================
 
--- Insert Users (password for all: Password@123)
--- ⚠️  WARNING: Test credentials only - Change before production deployment
+-- Insert Users
+-- ⚠️  CRITICAL: Update @TEST_PASSWORD_HASH above before running this script
+-- The placeholder value will NOT allow authentication
 INSERT IGNORE INTO users (id, username, email, password_hash, full_name, phone_number, is_active) VALUES
 (1, 'admin', 'admin@loanmanagement.com', @TEST_PASSWORD_HASH, 'System Administrator', '+1234567890', true),
 (2, 'officer1', 'officer1@loanmanagement.com', @TEST_PASSWORD_HASH, 'John Officer', '+1234567891', true),
@@ -370,12 +406,29 @@ SELECT loan_id, emi_number, due_date, total_emi, status, paid_at FROM emi_schedu
 -- END OF SCRIPT
 -- ============================================================================
 --
--- DEFAULT CREDENTIALS (for all users):
--- Username: admin / officer1 / customer1 / customer2 / customer3
--- Password: Password@123
+-- IMPORTANT NEXT STEPS:
 --
--- Test Customers:
--- - customer1 (Alice Johnson) - ID: 3 - Has 1 disbursed loan, 1 applied loan
--- - customer2 (Bob Smith) - ID: 4 - Has 1 approved loan, 1 under review loan
--- - customer3 (Carol Williams) - ID: 5 - Has 1 applied loan, 1 rejected loan
+-- 1. ⚠️  UPDATE PASSWORDS: Replace @TEST_PASSWORD_HASH with secure bcrypt hashes
+--    See lines 95-116 for detailed instructions
+--
+-- 2. VERIFY DATABASE CREATION:
+--    - Check that all 6 databases were created successfully
+--    - Verify tables exist in each database
+--    - Confirm test data was inserted (see verification queries above)
+--
+-- 3. TEST USER ACCOUNTS:
+--    Usernames: admin / officer1 / customer1 / customer2 / customer3
+--    Roles: ADMIN / LOAN_OFFICER / CUSTOMER (x3)
+--
+-- 4. TEST DATA OVERVIEW:
+--    - customer1 (Alice Johnson) - ID: 3 - Has 1 disbursed loan, 1 applied loan
+--    - customer2 (Bob Smith) - ID: 4 - Has 1 approved loan, 1 under review loan
+--    - customer3 (Carol Williams) - ID: 5 - Has 1 applied loan, 1 rejected loan
+--
+-- 5. SECURITY CHECKLIST:
+--    [ ] Passwords updated from placeholder
+--    [ ] Different password for each user (recommended)
+--    [ ] Strong passwords used (12+ characters, mixed case, numbers, symbols)
+--    [ ] This file is NOT committed with real passwords
+--    [ ] Production uses separate, secure initialization process
 -- ============================================================================
