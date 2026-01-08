@@ -5,6 +5,8 @@ package com.loanmanagement.loanapp.domain.enums;
  */
 public enum LoanStatus {
     PENDING("Pending"),
+    APPLIED("Applied"),
+    UNDER_REVIEW("Under Review"),
     APPROVED("Approved"),
     REJECTED("Rejected"),
     DISBURSED("Disbursed"),
