@@ -52,7 +52,7 @@ public class LoanApplicationController {
     }
 
     @GetMapping("/my-loans")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public ResponseEntity<ApiResponse> getMyLoans(Authentication authentication) {
         com.loanmanagement.loanapp.infrastructure.security.UserPrincipal userPrincipal =
                 (com.loanmanagement.loanapp.infrastructure.security.UserPrincipal) authentication.getPrincipal();
