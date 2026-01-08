@@ -1,0 +1,383 @@
+{
+	"info": {
+		"_postman_id": "doc-upload-test-001",
+		"name": "Document Upload API Tests",
+		"description": "Test collection for Document Upload feature",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "0. Login - Get JWT Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.data.accessToken) {",
+							"    pm.collectionVariables.set(\"jwt_token\", jsonData.data.accessToken);",
+							"    console.log(\"JWT Token saved:\", jsonData.data.accessToken);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"Riddhima\",\n  \"password\": \"Richseebo@1\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Login to get JWT token for authenticated requests"
+			},
+			"response": []
+		},
+		{
+			"name": "1. Upload Document (ID_PROOF)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loanId",
+							"value": "4",
+							"description": "The loan ID",
+							"type": "text"
+						},
+						{
+							"key": "documentType",
+							"value": "ID_PROOF",
+							"description": "Document type: ID_PROOF, INCOME_PROOF, ADDRESS_PROOF, BANK_STATEMENT, EMPLOYMENT_PROOF, BUSINESS_PROOF, OTHER",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"description": "Select a PDF/JPG/JPEG/PNG file (max 5MB)",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/documents/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"upload"
+					]
+				},
+				"description": "Upload a document for a loan. Requires CUSTOMER, LOAN_OFFICER, or ADMIN role."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get All Documents for Loan",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/documents/loan/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"loan",
+						"4"
+					]
+				},
+				"description": "Get all documents for a specific loan"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Get Document Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/documents/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"1"
+					]
+				},
+				"description": "Get document metadata by document ID"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Download Document",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/documents/1/download",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"1",
+						"download"
+					]
+				},
+				"description": "Download a document file"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Upload Multiple Document Types",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loanId",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "documentType",
+							"value": "INCOME_PROOF",
+							"description": "Try: INCOME_PROOF, ADDRESS_PROOF, BANK_STATEMENT",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/documents/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"upload"
+					]
+				},
+				"description": "Upload different document types"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Validation - File Too Large",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loanId",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "documentType",
+							"value": "OTHER",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"description": "Select a file larger than 5MB - should fail with 400 Bad Request",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/documents/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"upload"
+					]
+				},
+				"description": "Test validation - file size exceeds 5MB limit. Expected: 400 Bad Request"
+			},
+			"response": []
+		},
+		{
+			"name": "7. Validation - Invalid File Type",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loanId",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "documentType",
+							"value": "OTHER",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"description": "Select a .txt or .exe file - should fail with 400 Bad Request",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/documents/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"upload"
+					]
+				},
+				"description": "Test validation - invalid file type. Only PDF, JPG, JPEG, PNG allowed. Expected: 400 Bad Request"
+			},
+			"response": []
+		},
+		{
+			"name": "8. Validation - Non-Existent Loan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loanId",
+							"value": "99999",
+							"description": "Non-existent loan ID",
+							"type": "text"
+						},
+						{
+							"key": "documentType",
+							"value": "OTHER",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/documents/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"upload"
+					]
+				},
+				"description": "Test validation - loan doesn't exist. Expected: 404 Not Found"
+			},
+			"response": []
+		},
+		{
+			"name": "9. Delete Document (Requires Loan Officer)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/documents/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"documents",
+						"1"
+					]
+				},
+				"description": "Delete a document. If logged in as CUSTOMER, this should fail with 403 Forbidden. Login as LOAN_OFFICER or ADMIN to test successful deletion."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

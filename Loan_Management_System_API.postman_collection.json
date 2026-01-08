@@ -1,0 +1,797 @@
+{
+	"info": {
+		"_postman_id": "loan-management-complete-api",
+		"name": "Loan Management System - Complete API Collection",
+		"description": "Complete API collection for testing all endpoints in the Loan Management System.\n\n**Base URL:** http://localhost:8080\n\n**Authentication:** JWT Bearer Token\n\n**Test Flow:**\n1. Register Customer\n2. Login (Get JWT Token)\n3. Test Health Endpoints\n4. View Loan Types\n5. Submit Loan Application\n6. Login as Admin/Loan Officer\n7. Review & Approve Loan\n8. View EMI Schedule\n9. Record EMI Payment\n10. View Reports",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [{
+			"key": "token",
+			"value": "{{accessToken}}",
+			"type": "string"
+		}]
+	},
+	"item": [
+		{
+			"name": "0. Health Checks",
+			"item": [
+				{
+					"name": "Public Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health/public",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health", "public"]
+						},
+						"description": "Check if the loan application service is running (no authentication required)."
+					}
+				},
+				{
+					"name": "Authenticated Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health/authenticated",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health", "authenticated"]
+						},
+						"description": "Verify authentication is working and see current user context."
+					}
+				}
+			],
+			"description": "Health check endpoints to verify services are running and authentication is working."
+		},
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register Customer",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"if (pm.response.code === 200) {",
+								"    var jsonData = pm.response.json();",
+								"    pm.collectionVariables.set(\"accessToken\", jsonData.data.accessToken);",
+								"    pm.collectionVariables.set(\"refreshToken\", jsonData.data.refreshToken);",
+								"    pm.collectionVariables.set(\"userId\", jsonData.data.user.id);",
+								"    console.log(\"Access Token saved:\", jsonData.data.accessToken);",
+								"}"
+							]
+						}
+					}],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testcustomer\",\n  \"email\": \"customer@test.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Customer\",\n  \"phoneNumber\": \"1234567890\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Register a new customer account. Automatically returns JWT tokens."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"if (pm.response.code === 200) {",
+								"    var jsonData = pm.response.json();",
+								"    pm.collectionVariables.set(\"accessToken\", jsonData.data.accessToken);",
+								"    pm.collectionVariables.set(\"refreshToken\", jsonData.data.refreshToken);",
+								"    pm.collectionVariables.set(\"userId\", jsonData.data.user.id);",
+								"    console.log(\"Logged in as:\", jsonData.data.user.username);",
+								"}"
+							]
+						}
+					}],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testcustomer\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login with username and password to receive JWT access token."
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "refresh"]
+						},
+						"description": "Use refresh token to get new access token."
+					}
+				}
+			],
+			"description": "Authentication endpoints for registration, login, and token management."
+		},
+		{
+			"name": "2. User Management",
+			"item": [
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "me"]
+						},
+						"description": "Get current authenticated user's profile."
+					}
+				},
+				{
+					"name": "Update Current User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Updated\",\n  \"lastName\": \"Name\",\n  \"phoneNumber\": \"9876543210\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "me"]
+						},
+						"description": "Update current user's profile information."
+					}
+				},
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"}
+							]
+						},
+						"description": "Get paginated list of all users (Admin only)."
+					}
+				},
+				{
+					"name": "Get User by ID (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						},
+						"description": "Get user details by ID (Admin only)."
+					}
+				}
+			],
+			"description": "User profile and management endpoints."
+		},
+		{
+			"name": "3. Loan Types",
+			"item": [
+				{
+					"name": "Get All Loan Types (Public)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types"]
+						},
+						"description": "Get all available loan types (public endpoint)."
+					}
+				},
+				{
+					"name": "Get Active Loan Types (Public)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types/active",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types", "active"]
+						},
+						"description": "Get only active loan types (public endpoint)."
+					}
+				},
+				{
+					"name": "Get Loan Type by ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types", "1"]
+						},
+						"description": "Get specific loan type details by ID (public endpoint)."
+					}
+				},
+				{
+					"name": "Create Loan Type (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Personal Loan\",\n  \"description\": \"Personal loan for individual needs\",\n  \"minAmount\": 10000,\n  \"maxAmount\": 500000,\n  \"minInterestRate\": 10.5,\n  \"maxInterestRate\": 15.5,\n  \"minTenure\": 12,\n  \"maxTenure\": 60,\n  \"isActive\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types"]
+						},
+						"description": "Create a new loan type (Admin only)."
+					}
+				},
+				{
+					"name": "Update Loan Type (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Personal Loan Updated\",\n  \"description\": \"Updated description\",\n  \"minAmount\": 15000,\n  \"maxAmount\": 600000,\n  \"minInterestRate\": 11.0,\n  \"maxInterestRate\": 16.0,\n  \"minTenure\": 12,\n  \"maxTenure\": 72,\n  \"isActive\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types", "1"]
+						},
+						"description": "Update existing loan type (Admin only)."
+					}
+				},
+				{
+					"name": "Delete Loan Type (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loan-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loan-types", "1"]
+						},
+						"description": "Delete loan type (Admin only)."
+					}
+				}
+			],
+			"description": "Loan type configuration endpoints (some public, some admin-only)."
+		},
+		{
+			"name": "4. Loan Application",
+			"item": [
+				{
+					"name": "Apply for Loan",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"if (pm.response.code === 201 || pm.response.code === 200) {",
+								"    var jsonData = pm.response.json();",
+								"    if (jsonData.data && jsonData.data.id) {",
+								"        pm.collectionVariables.set(\"loanId\", jsonData.data.id);",
+								"        console.log(\"Loan ID saved:\", jsonData.data.id);",
+								"    }",
+								"}"
+							]
+						}
+					}],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"loanTypeId\": 1,\n  \"requestedAmount\": 100000,\n  \"tenure\": 24,\n  \"purpose\": \"Home renovation\",\n  \"employmentStatus\": \"EMPLOYED\",\n  \"annualIncome\": 600000,\n  \"existingLoans\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/apply",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "apply"]
+						},
+						"description": "Submit a new loan application (Customer only)."
+					}
+				},
+				{
+					"name": "Get My Loans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/my-loans",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "my-loans"]
+						},
+						"description": "Get all loans for the current customer."
+					}
+				},
+				{
+					"name": "Get Loan by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}"]
+						},
+						"description": "Get loan details by ID."
+					}
+				},
+				{
+					"name": "Get All Loans (Admin/Officer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans?page=0&size=10&status=PENDING",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"},
+								{"key": "status", "value": "PENDING", "description": "PENDING, APPROVED, REJECTED, DISBURSED, CLOSED"}
+							]
+						},
+						"description": "Get paginated list of all loans with optional status filter (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Get Pending Loans (Admin/Officer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/pending",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "pending"]
+						},
+						"description": "Get all pending loan applications awaiting review (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Mark as Under Review (Admin/Officer)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}/review",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}", "review"]
+						},
+						"description": "Mark loan as under review (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Approve Loan (Admin/Officer)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"approvedAmount\": 100000,\n  \"interestRate\": 12.5,\n  \"tenure\": 24,\n  \"remarks\": \"Approved based on income verification\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}", "approve"]
+						},
+						"description": "Approve loan and automatically generate EMI schedule (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Reject Loan (Admin/Officer)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"remarks\": \"Insufficient income verification\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}", "reject"]
+						},
+						"description": "Reject loan application with remarks (Admin/Loan Officer only)."
+					}
+				}
+			],
+			"description": "Loan application and management endpoints."
+		},
+		{
+			"name": "5. Loan Disbursement",
+			"item": [
+				{
+					"name": "Disburse Loan (Admin/Officer)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"disbursementDate\": \"2026-01-05\",\n  \"disbursementMethod\": \"BANK_TRANSFER\",\n  \"accountNumber\": \"1234567890\",\n  \"bankName\": \"HDFC Bank\",\n  \"ifscCode\": \"HDFC0001234\",\n  \"remarks\": \"Loan amount disbursed to customer account\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}/disburse",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}", "disburse"]
+						},
+						"description": "Disburse approved loan amount to customer (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Get Disbursement Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/loans/{{loanId}}/disbursement",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "loans", "{{loanId}}", "disbursement"]
+						},
+						"description": "Get disbursement details for a loan."
+					}
+				}
+			],
+			"description": "Loan disbursement management endpoints."
+		},
+		{
+			"name": "6. Documents",
+			"item": [
+				{
+					"name": "Upload Document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "documentType",
+									"value": "IDENTITY_PROOF",
+									"type": "text"
+								},
+								{
+									"key": "loanId",
+									"value": "{{loanId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "documents", "upload"]
+						},
+						"description": "Upload document for loan application. Document types: IDENTITY_PROOF, ADDRESS_PROOF, INCOME_PROOF, BANK_STATEMENT."
+					}
+				},
+				{
+					"name": "Get Documents for Loan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/loan/{{loanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "documents", "loan", "{{loanId}}"]
+						},
+						"description": "Get all documents uploaded for a specific loan."
+					}
+				},
+				{
+					"name": "Download Document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{documentId}}/download",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "documents", "{{documentId}}", "download"]
+						},
+						"description": "Download a specific document."
+					}
+				},
+				{
+					"name": "Delete Document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{documentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "documents", "{{documentId}}"]
+						},
+						"description": "Delete a document."
+					}
+				}
+			],
+			"description": "Document upload and management endpoints."
+		},
+		{
+			"name": "7. EMI Management",
+			"item": [
+				{
+					"name": "Get EMI Schedule for Loan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/loan/{{loanId}}/schedule",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "loan", "{{loanId}}", "schedule"]
+						},
+						"description": "Get complete EMI schedule for a loan."
+					}
+				},
+				{
+					"name": "Get My EMI Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/my-schedule",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "my-schedule"]
+						},
+						"description": "Get EMI schedule for all loans of the current user."
+					}
+				},
+				{
+					"name": "Record EMI Payment (Admin/Officer)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scheduleId\": 1,\n  \"paymentAmount\": 4500,\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"transactionReference\": \"TXN123456\",\n  \"paymentDate\": \"2026-01-05\",\n  \"remarks\": \"EMI payment\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/pay",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "pay"]
+						},
+						"description": "Record EMI payment (Admin/Loan Officer only)."
+					}
+				},
+				{
+					"name": "Get Payment History for Loan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/loan/{{loanId}}/payments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "loan", "{{loanId}}", "payments"]
+						},
+						"description": "Get payment history for a specific loan."
+					}
+				},
+				{
+					"name": "Get Pending EMIs (Customer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/pending",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "pending"]
+						},
+						"description": "Get all pending EMIs for the current customer."
+					}
+				},
+				{
+					"name": "Get Overdue EMIs (Admin/Officer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/emis/overdue",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "emis", "overdue"]
+						},
+						"description": "Get all overdue EMIs across all customers (Admin/Loan Officer only)."
+					}
+				}
+			],
+			"description": "EMI schedule and payment management endpoints."
+		},
+		{
+			"name": "8. Reports & Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard (Role-Specific)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "dashboard"]
+						},
+						"description": "Get role-specific dashboard data. Admin sees overall stats, Officers see assigned loans, Customers see their loan summary."
+					}
+				},
+				{
+					"name": "Get Loan Summary Report (Admin/Officer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/loans/summary?startDate=2026-01-01&endDate=2026-01-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reports", "loans", "summary"],
+							"query": [
+								{"key": "startDate", "value": "2026-01-01"},
+								{"key": "endDate", "value": "2026-01-31"}
+							]
+						},
+						"description": "Get loan summary report for a date range (Admin/Officer only)."
+					}
+				},
+				{
+					"name": "Get EMI Collection Report (Admin/Officer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/emis/collection?startDate=2026-01-01&endDate=2026-01-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reports", "emis", "collection"],
+							"query": [
+								{"key": "startDate", "value": "2026-01-01"},
+								{"key": "endDate", "value": "2026-01-31"}
+							]
+						},
+						"description": "Get EMI collection report for a date range (Admin/Officer only)."
+					}
+				}
+			],
+			"description": "Dashboard and reporting endpoints for analytics and insights."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "loanId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "documentId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

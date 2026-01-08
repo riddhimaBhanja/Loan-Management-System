@@ -1,1 +1,0 @@
-{"ast":null,"code":"import { authGuard } from '@core/guards/auth.guard';\nexport const PROFILE_ROUTES = [{\n  path: '',\n  loadComponent: () => import('./user-profile/user-profile.component').then(m => m.UserProfileComponent),\n  canActivate: [authGuard]\n}];","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

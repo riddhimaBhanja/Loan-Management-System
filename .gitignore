@@ -1,12 +1,47 @@
 # Backend
-/target/
+target/
 *.log
 .env
 
 # Frontend
-/node_modules/
+node_modules/
 dist/
+.angular/
 
 # IDE
 .idea/
 .vscode/
+.classpath
+.project
+.settings/
+
+# Build and temp files
+*.class
+*.jar
+*.war
+*.ear
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+NUL
+nul
+
+# Temporary documentation (generated)
+*_COMPLETE.md
+*_SUMMARY.md
+*_REPORT.md
+*_GUIDE.md
+*_CHECKLIST.md
+QUICK_FIX_STEPS.txt
+
+# Keep these important docs
+!DEPLOYMENT_GUIDE.md
+!SETUP_INSTRUCTIONS.md
+!API_DOCUMENTATION.md
+!DATABASE_SCHEMA.md
+!TESTING_GUIDE.md
