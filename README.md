@@ -86,7 +86,7 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 `
 
 ![apply loan page validation](https://github.com/user-attachments/assets/eb9519e1-9dd9-4b5a-a57e-56fdfcac5db9)
-![apply for loan as customer](https://github.com/user-attachments/assets/795dcc1b-e86a-45e3-af44-699c164222ad)
+
 
 `
 ---
