@@ -92,7 +92,14 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 `
 ---
 
+### Circuit Breaker
 
+`
+
+![CIRCUIT BREAKER](https://github.com/user-attachments/assets/57c75166-daff-4499-85d4-1710c7e00cb2)
+
+`
+---
 
 ### Microservices Overview
 
