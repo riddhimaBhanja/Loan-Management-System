@@ -113,12 +113,14 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 
 ## Auth and User service JACOCO Report
 
-![jacoco_auth-service](https://github.com/user-attachments/assets/659cf4eb-1e19-447b-9cdd-f2a120b94bcc)
+
+![jacoco_auth-service](https://github.com/user-attachments/assets/6052df08-97d0-49f6-aba6-eef9a9d9f74c)
 
 ## Loan Application Service JACOCO Report
 
-![jacoco_loan-application-service](https://github.com/user-attachments/assets/3e45b9c2-b0dc-480e-b70e-2c3321c470b2)
 
+
+![jacoco_loan-application-service](https://github.com/user-attachments/assets/c9fb39c2-80e6-463d-b476-e9cfa38c762a)
 
 
 
