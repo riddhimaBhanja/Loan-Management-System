@@ -62,14 +62,7 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 `
 ---
 
-### SonarQube Report
 
-`
-
-![sonarQube](https://github.com/user-attachments/assets/6787bd93-7b33-490f-8b00-51667689cf65)
-
-`
----
 
 ### Eureka Dashboard
 
