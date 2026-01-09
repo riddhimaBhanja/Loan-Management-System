@@ -44,6 +44,60 @@ The **Loan Management System** is an enterprise-grade, full-stack application bu
 
 `
 ---
+### Jenkins Report
+
+`
+
+![jenkins](https://github.com/user-attachments/assets/ce545f95-4dfa-480b-b846-e5a192b7730c)
+
+`
+---
+
+### SonarQube Report
+
+`
+
+![sonarQube](https://github.com/user-attachments/assets/6787bd93-7b33-490f-8b00-51667689cf65)
+
+`
+---
+
+### SonarQube Report
+
+`
+
+![sonarQube](https://github.com/user-attachments/assets/6787bd93-7b33-490f-8b00-51667689cf65)
+
+`
+---
+
+### Eureka Dashboard
+
+`
+
+![eureka dashboard](https://github.com/user-attachments/assets/032df26f-f9aa-41d4-8186-d19d6377659e)
+
+`
+---
+### ER Diagram
+
+`
+![ER Diagram](https://github.com/user-attachments/assets/e2ac7b2e-96bd-43fc-ac3e-230207ebae6f)
+
+
+`
+---
+
+### Validations
+
+`
+
+![apply loan page validation](https://github.com/user-attachments/assets/eb9519e1-9dd9-4b5a-a57e-56fdfcac5db9)
+![apply for loan as customer](https://github.com/user-attachments/assets/795dcc1b-e86a-45e3-af44-699c164222ad)
+
+`
+---
+
 
 
 ### Microservices Overview
